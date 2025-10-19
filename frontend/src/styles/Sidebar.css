@@ -1,0 +1,145 @@
+.app-container {
+    display: flex;
+    position: relative;
+}
+
+.sidenav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background: #011627;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+    transition: width 0.3s;
+    z-index: 1;
+}
+
+.sidenav.expanded {
+    width: 200px;
+}
+
+.sidenav.collapsed {
+    width: 60px;
+}
+
+.toggle-btn {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 42px;
+    height: 42px;
+    background: #011627;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.toggle-btn svg {
+    font-size: 22px;
+    color: #fff;
+}
+
+.menu {
+    list-style: none;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu li a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 48px;
+    padding: 0 12px;
+    color: #eaecef;
+    text-decoration: none;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: background 0.25s;
+}
+
+.menu li a:hover {
+    background: #0b71ac75;
+}
+
+.icon {
+    font-size: 18px;
+    min-width: 20px;
+}
+
+.label {
+    transition: opacity 0.25s, width 0.25s;
+    overflow: hidden;
+}
+
+.sidenav.collapsed .label {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+}
+
+.main {
+    flex: 1;
+    transition: margin-left 0.3s;
+    margin-left: 60px;
+}
+
+.main.shifted {
+    margin-left: 200px;
+}
+
+.menu .menu-link.active {
+    background: #0b71ac;
+    color: #fff;
+}
+
+@media (max-width: 991.98px) {
+    .sidenav.expanded {
+        width: 160px;
+    }
+
+    .sidenav.collapsed {
+        width: 52px;
+    }
+
+    .main {
+        margin-left: 52px;
+    }
+
+    .main.shifted {
+        margin-left: 160px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidenav.expanded {
+        width: 120px;
+    }
+
+    .sidenav.collapsed {
+        width: 48px;
+    }
+
+    .label {
+        opacity: 0;
+        width: 0;
+        pointer-events: none;
+    }
+
+    .main {
+        margin-left: 48px;
+    }
+
+    .main.shifted {
+        margin-left: 120px;
+    }
+}
