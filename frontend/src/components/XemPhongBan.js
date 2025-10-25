@@ -1,175 +1,199 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 import "../styles/style.css";
-import { TfiBackLeft } from "react-icons/tfi";
-import { TfiBackRight } from "react-icons/tfi";
-import { FaEye } from "react-icons/fa";
+import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
 import { FaRegEye } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
-import { FiEdit2 } from "react-icons/fi";
-import { IoMdArrowBack } from "react-icons/io";
 
-const XemPhongBan = () => {
-    const navigate = useNavigate();
-    const ITEMS_PER_PAGE = 5;
-    const tbodyRef = useRef(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalRows, setTotalRows] = useState(0);
+const XemPhongBan = ({ data, onClose }) => {
+  const ITEMS_PER_PAGE = 5;
+  const tbodyRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [employees, setEmployees] = useState([]);
+  const [department, setDepartment] = useState(null);
+  const [totalRows, setTotalRows] = useState(0);
 
-    // Tính tổng trang dựa trên số <tr> có trong DOM (gán cứng)
-    const totalPages = useMemo(() => {
-        return Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE));
-    }, [totalRows]);
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
+    [totalRows]
+  );
 
-    // Ẩn/hiện hàng theo trang hiện tại
-    const applyPagination = () => {
-        const tbody = tbodyRef.current;
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        const end = start + ITEMS_PER_PAGE;
-
-        rows.forEach((tr, idx) => {
-            if (idx >= start && idx < end) {
-                tr.style.display = ''; // hiện
-            } else {
-                tr.style.display = 'none'; // ẩn
-            }
-        });
+  // ✅ Lấy chi tiết phòng ban và danh sách nhân viên
+  useEffect(() => {
+    if (!data?.MaPB) return;
+    const fetchData = async () => {
+      try {
+        const [pbRes, nvRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/departments/${data.MaPB}`),
+          axios.get(`http://localhost:5000/api/employees?MaPB=${data.MaPB}`),
+        ]);
+        setDepartment(pbRes.data);
+        setEmployees(nvRes.data);
+        setTotalRows(nvRes.data.length);
+      } catch (err) {
+        console.error("❌ Lỗi khi tải chi tiết phòng ban:", err);
+      }
     };
+    fetchData();
+  }, [data]);
 
-    // Lần đầu mount và mỗi khi currentPage đổi -> áp dụng phân trang
-    useEffect(() => {
-        const tbody = tbodyRef.current;
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        setTotalRows(rows.length);
-    }, []);
+  // ✅ Phân trang
+  const applyPagination = () => {
+    const tbody = tbodyRef.current;
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    rows.forEach((tr, idx) => {
+      tr.style.display = idx >= start && idx < end ? "" : "none";
+    });
+  };
 
-    useEffect(() => {
-        applyPagination();
-    }, [currentPage, totalRows]);
+  useEffect(() => {
+    applyPagination();
+  }, [currentPage, totalRows, employees]);
 
-    // Nếu sau này bạn thêm/bớt <tr> thủ công, có thể gọi hàm này để cập nhật lại.
-    const refreshRowCount = () => {
-        const tbody = tbodyRef.current;
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        setTotalRows(rows.length);
-        // đảm bảo currentPage không vượt quá totalPages mới
-        setCurrentPage((p) => {
-            const newTotalPages = Math.max(1, Math.ceil(rows.length / ITEMS_PER_PAGE));
-            return Math.min(p, newTotalPages);
-        });
-    };
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
 
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) setCurrentPage(page);
-    };
+  if (!department)
+    return <div className="loading">Đang tải thông tin phòng ban...</div>;
 
-    return (
-        <div className="quanly-container qlct-container">
-            <div className='chitiet chitiet-pb'>
-                <div className='form-gr  under-line'>
-                    <div className="form-gr-content">
-                        <strong>Mã phòng ban:<p>PB01</p></strong>
-                    </div>
-                    <div className="form-gr-content">
-                        <strong>Tên phòng ban:<p>Phòng ban 01</p></strong>
-                    </div>
-                    <div className="form-gr-content">
-                        <strong>Tên công ty:<p>Công ty 01</p></strong>
-                    </div>
-                </div>
-                <div className='form-gr under-line'>
-                    <div className="form-gr-content">
-                        <strong>Trưởng phòng ban:<p>Nguyễn Văn A</p></strong>
-                    </div>
-                    <div className="form-gr-content">
-                        <strong>Ngày tạo:<p>11/11/2025</p></strong>
-                    </div>
-                </div>
-                <div className='form-gr under-line'>
-                    <div className="form-gr-content">
-                        <strong style={{ display: "block" }}>Mô tả phòng ban:<p>Phòng Ban là đơn vị chuyên trách trong công ty,
-                            chịu trách nhiệm lập kế hoạch, tổ chức và triển khai các nhiệm vụ thuộc lĩnh vực được giao.
-                            Dưới sự điều hành của Trưởng phòng, bộ phận phối hợp chặt chẽ với các phòng ban khác để đạt mục tiêu chung,
-                            đảm bảo tiến độ và chất lượng công việc. Phòng thường xây dựng quy trình, theo dõi KPI, báo cáo định kỳ và đề xuất cải tiến nhằm nâng cao hiệu quả hoạt động.
-                            Môi trường làm việc đề cao tính kỷ luật, hợp tác và tinh thần chủ động của mỗi thành viên.</p>
-                        </strong>
-                    </div>
-                </div>
-            </div>
-            <div className='quanly-header qlct-header'>
-                <div className='quanly-header-title qlct-header-title'>
-                    <h3>Tổng số nhân viên phòng ban:<h3>10</h3></h3>
-                </div>
-                <div className='timvaloc'>
-                    <div className='tim' style={{ margin: 0, width: '500px' }}>
-                        <input type="text" className='tim-input' placeholder='Tìm theo mã, tên nhân viên,...' />
-                    </div>
-                </div>
-                <div className='quanly-them qlct-them'>
-                    <button className='button-them'>Thêm nhân viên</button>
-                </div>
-            </div>
-            <div className='quanly-body qlct-body'>
-                <div className='table-container'>
-                    <table className='quanly-table'>
-                        <thead className='quanly-thead qlct-thead'>
-                            <tr>
-                                <th>STT</th>
-                                <th>Mã nhân viên</th>
-                                <th>Tên nhân viên</th>
-                                <th>Chức vụ</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody className='quanly-tbody qlct-tbody' ref={tbodyRef}>
-                            <tr>
-                                <td>1</td>
-                                <td>NV01</td>
-                                <td>Nguyễn Văn A</td>
-                                <td>Nhân viên</td>
-                                <td>
-                                    <button class='button-xem quanly-button-xem'><FaRegEye /></button>
-                                    <button class='button-xoa quanly-button-xoa'><MdDeleteOutline /></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div className='quanly-phantrang'>
-                    <button
-                        className='phantrang-btn'
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                        <TfiBackLeft />
-                    </button>
-
-                    {/* Nút số trang */}
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                        <button
-                            key={i}
-                            className={`phantrang-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                            onClick={() => handlePageChange(i + 1)}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-
-                    <button
-                        className='phantrang-btn'
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        <TfiBackRight />
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="quanly-container qlct-container">
+      {/* ===== Thông tin phòng ban ===== */}
+      <div className="chitiet chitiet-pb">
+        <div className="form-gr under-line">
+          <div className="form-gr-content">
+            <strong>
+              Mã phòng ban:
+              <p>{department.MaPB}</p>
+            </strong>
+          </div>
+          <div className="form-gr-content">
+            <strong>
+              Tên phòng ban:
+              <p>{department.TenPB}</p>
+            </strong>
+          </div>
+          <div className="form-gr-content">
+            <strong>
+              Thuộc công ty:
+              <p>{department.TenCT || "Chưa xác định"}</p>
+            </strong>
+          </div>
         </div>
-    )
-}
+        <div className="form-gr under-line">
+          <div className="form-gr-content">
+            <strong>
+              Trưởng phòng:
+              <p>{department.TruongPhongTen || "Chưa có"}</p>
+            </strong>
+          </div>
+        </div>
+        <div className="form-gr under-line">
+          <div className="form-gr-content">
+            <strong style={{ display: "block" }}>
+              Mô tả:
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: department.MoTa || "<p>Chưa có mô tả</p>",
+                }}
+              />
+            </strong>
+          </div>
+        </div>
+      </div>
 
-export default XemPhongBan
+      {/* ===== Danh sách nhân viên ===== */}
+      <div className="quanly-header qlct-header">
+        <div className="quanly-header-title qlct-header-title">
+          <h3>
+            Tổng số nhân viên: <span>{employees.length}</span>
+          </h3>
+        </div>
+      </div>
+
+      <div className="quanly-body qlct-body">
+        <div className="table-container">
+          <table className="quanly-table">
+            <thead className="quanly-thead qlct-thead">
+              <tr>
+                <th>STT</th>
+                <th>Mã nhân viên</th>
+                <th>Tên nhân viên</th>
+                <th>Chức vụ</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
+              {employees.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center" }}>
+                    Không có nhân viên trong phòng ban này.
+                  </td>
+                </tr>
+              ) : (
+                employees.map((nv, idx) => (
+                  <tr key={nv.MaNV}>
+                    <td>{idx + 1}</td>
+                    <td>{nv.MaNV}</td>
+                    <td>{nv.TenNV}</td>
+                    <td>{nv.ChucVu || "Nhân viên"}</td>
+                    <td>
+                      <button className="button-xem quanly-button-xem">
+                        <FaRegEye />
+                      </button>
+                      <button className="button-xoa quanly-button-xoa">
+                        <MdDeleteOutline />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* ===== Phân trang ===== */}
+        <div className="quanly-phantrang">
+          <button
+            className="phantrang-btn"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <TfiBackLeft />
+          </button>
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              className={`phantrang-btn ${
+                currentPage === i + 1 ? "active" : ""
+              }`}
+              onClick={() => handlePageChange(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="phantrang-btn"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <TfiBackRight />
+          </button>
+        </div>
+      </div>
+
+      {/* ===== Nút đóng ===== */}
+      <div className="button-group">
+        <button className="button-cancel" onClick={onClose}>
+          Đóng
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default XemPhongBan;
