@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import "../styles/style.css";
 import "../styles/Logs.css";
 import br_themtaikhoan from "../imgs/br-qlct2.jpg";
+import { ImCancelCircle } from "react-icons/im";
 
 const SuaTaiKhoan = ({ onClose = () => { } }) => {
 
@@ -64,10 +65,9 @@ const SuaTaiKhoan = ({ onClose = () => { } }) => {
             fontSize: '20px',
             lineHeight: 1,
             cursor: 'pointer',
-            color: '#111',
           }}
         >
-          ×
+          <ImCancelCircle style={{ color: "black" }} />
         </button>
 
         <h3 className="subtitle">SỬA TÀI KHOẢN</h3>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "../styles/style.css";
 import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
@@ -152,163 +153,188 @@ const QLDuAn = () => {
     ) : null;
 
   return (
-    <div className="quanly-container qlct-container">
-      {/* ======= Tiêu đề chính ======= */}
-      <div className="quanly-title qlct-title">
-        <h2>
-          <FaProjectDiagram style={{ marginRight: "0.3rem" }} /> Quản Lý Dự Án
-        </h2>
-      </div>
-
-      {/* ======= Thanh tìm kiếm & lọc ======= */}
-      <div className="timvaloc timvaloc-border">
-        <div className="tim">
-          <input
-            type="text"
-            className="tim-input"
-            placeholder="Tìm theo mã, tên, trưởng dự án,..."
-          />
+    <div className="quanly-content">
+      <div className="quanly-container qlct-container">
+        {/* ======= Tiêu đề chính ======= */}
+        <div className="quanly-title qlct-title">
+          <h2>
+            <FaProjectDiagram style={{ marginRight: "0.3rem" }} />
+            Dự Án
+          </h2>
         </div>
-        <div className="loc">
-          <select className="loc-select">
-            <option value="">--Lọc theo trạng thái--</option>
-          </select>
-        </div>
-      </div>
-
-      {/* ======= Header: tổng số + thêm ======= */}
-      <div className="quanly-header qlct-header">
-        <div className="quanly-header-title qlct-header-title">
-          <h3>
-            Tổng số dự án: <span>{duAnList.length}</span>
-          </h3>
-        </div>
-        <div className="quanly-them qlct-them">
-          <button className="button-them" onClick={openAdd}>
-            Thêm dự án
-          </button>
-        </div>
-      </div>
-
-      {/* ======= Bảng danh sách ======= */}
-      <div className="quanly-body qlct-body">
-        <div className="table-container">
-          <table className="quanly-table">
-            <thead className="quanly-thead qlct-thead">
-              <tr>
-                <th>STT</th>
-                <th>Mã dự án</th>
-                <th>Tên dự án</th>
-                <th>Trưởng dự án</th>
-                <th>Ngày bắt đầu</th>
-                <th>Ngày kết thúc</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
-              {duAnList.map((item, index) => (
-                <tr key={item.MaDA}>
-                  <td>{index + 1}</td>
-                  <td>{item.MaDA}</td>
-                  <td>{item.TenDA}</td>
-                  <td>{item.TenTruongDA || "—"}</td>
-                  <td>
-                    {item.NgayBatDau
-                      ? new Date(item.NgayBatDau).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td>
-                    {item.NgayKetThuc
-                      ? new Date(item.NgayKetThuc).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td>{item.TrangThai ? "Hoàn thành" : "Đang thực hiện"}</td>
-                  <td>
-                    <button
-                      className="button-xem quanly-button-xem"
-                      onClick={() => openView(item)}
-                    >
-                      <FaRegEye />
-                    </button>
-                    <button
-                      className="button-sua quanly-button-sua"
-                      onClick={() => openEdit(item)}
-                    >
-                      <FiEdit2 />
-                    </button>
-                    <button
-                      className="button-xoa quanly-button-xoa"
-                      onClick={() => handleDelete(item.MaDA)}
-                    >
-                      <MdDeleteOutline />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* ======= Phân trang ======= */}
-        <div className="quanly-phantrang">
-          <button
-            className="phantrang-btn"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <TfiBackLeft />
-          </button>
-
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              className={`phantrang-btn ${
-                currentPage === i + 1 ? "active" : ""
-              }`}
-              onClick={() => handlePageChange(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          <button
-            className="phantrang-btn"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <TfiBackRight />
-          </button>
-        </div>
-
-        {/* ======= Modal overlay ======= */}
-        {showModal && (
-          <div
-            className="ql-overlay"
-            role="dialog"
-            aria-modal="true"
-            onClick={(e) => {
-              if (e.target.classList.contains("ql-overlay"))
-                setShowModal(false);
-            }}
-          >
-            <div className="overlay-content">
-              <div className="overlay-header">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  {modalTitle}
-                </div>
-                <button
-                  className="overlay-close"
-                  aria-label="Đóng"
-                  onClick={() => setShowModal(false)}
-                >
-                  <ImCancelCircle style={{ color: "red" }} />
-                </button>
-              </div>
-              <div className="overlay-body">{renderModalContent()}</div>
+        <div className="quanly-title-sub">
+          <div className="ct-tong">
+            <div className="quanly-title-sub-content">
+              <h3>Tổng dự án:<span className="tong">{duAnList.length}</span></h3>
             </div>
           </div>
-        )}
+          <div className="ct-hoatdong">
+            <div className="quanly-title-sub-content">
+              <h3>Đã hoàn thành:<span className="hoatdong">5</span></h3>
+            </div>
+          </div>
+          <div className="ct-tamngung">
+            <div className="quanly-title-sub-content">
+              <h3>Đang hoàn thành:<span className="tamngung">5</span></h3>
+            </div>
+          </div>
+        </div>
+        {/* ======= Thanh tìm kiếm & lọc ======= */}
+        <div className='timvaloc timvaloc-border'>
+          <div className='tim'>
+            <input type="text" className='tim-input' placeholder='Tìm theo mã, tên, trưởng phòng, công ty,...' />
+          </div>
+          <div className='loc'>
+            <select className='loc-select' >
+              <option value="">--Lọc theo dự án--</option>
+            </select>
+            <select className='loc-select' >
+              <option value="">--Lọc theo trưởng dự án--</option>
+            </select>
+            <select className='loc-select' >
+              <option value="">--Lọc theo trạng thái--</option>
+            </select>
+          </div>
+        </div>
+
+        {/* ======= Header: tổng số + thêm ======= */}
+        <div className="quanly-header qlct-header">
+          <div className="quanly-header-title qlct-header-title">
+            <h3>
+              Danh sách dự án
+            </h3>
+          </div>
+          <div className="quanly-them qlct-them">
+            <button className="button-them" onClick={openAdd}>
+              <IoAddCircle />
+              <div>Thêm</div>
+            </button>
+          </div>
+        </div>
+
+        {/* ======= Bảng danh sách ======= */}
+        <div className="quanly-body qlct-body">
+          <div className="table-container">
+            <table className="quanly-table">
+              <thead className="quanly-thead qlct-thead">
+                <tr>
+                  <th>STT</th>
+                  <th>Mã dự án</th>
+                  <th>Tên dự án</th>
+                  <th>Trưởng dự án</th>
+                  <th>Ngày bắt đầu</th>
+                  <th>Ngày kết thúc</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
+                {duAnList.map((item, index) => (
+                  <tr key={item.MaDA}>
+                    <td>{index + 1}</td>
+                    <td>{item.MaDA}</td>
+                    <td>{item.TenDA}</td>
+                    <td>{item.TenTruongDA || "—"}</td>
+                    <td>
+                      {item.NgayBatDau
+                        ? new Date(item.NgayBatDau).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td>
+                      {item.NgayKetThuc
+                        ? new Date(item.NgayKetThuc).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td>{item.TrangThai ? "Hoàn thành" : "Đang thực hiện"}</td>
+                    <td>
+                      <button
+                        className="button-xem quanly-button-xem"
+                        onClick={() => openView(item)}
+                      >
+                        <FaRegEye />
+                      </button>
+                      <button
+                        className="button-sua quanly-button-sua"
+                        onClick={() => openEdit(item)}
+                      >
+                        <FiEdit2 />
+                      </button>
+                      <button
+                        className="button-xoa quanly-button-xoa"
+                        onClick={() => handleDelete(item.MaDA)}
+                      >
+                        <MdDeleteOutline />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ======= Phân trang ======= */}
+          <div className="quanly-phantrang">
+            <button
+              className="phantrang-btn"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <TfiBackLeft />
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""
+                  }`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              className="phantrang-btn"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <TfiBackRight />
+            </button>
+          </div>
+
+          {/* ======= Modal overlay ======= */}
+          {showModal &&
+            createPortal(
+              <div
+                className="ql-overlay"
+                role="dialog"
+                aria-modal="true"
+                onClick={(e) => {
+                  if (e.target.classList.contains("ql-overlay")) setShowModal(false);
+                }}
+              >
+                <div className="overlay-content">
+                  <div className="overlay-header">
+                    <h3 className="quanly-title qlct-title">
+                      <span style={{ display: "flex", alignItems: "center" }}>
+                        {modalTitle}
+                      </span>
+                    </h3>
+                    <button
+                      className="overlay-close"
+                      aria-label="Đóng"
+                      onClick={() => setShowModal(false)}
+                    >
+                      <ImCancelCircle style={{ color: "red" }} />
+                    </button>
+                  </div>
+                  <div className="overlay-body">{renderModalContent()}</div>
+                </div>
+              </div>,
+              document.body
+            )
+          }
+        </div>
       </div>
     </div>
   );

@@ -8,7 +8,8 @@
     top: 0;
     left: 0;
     height: 100vh;
-    background: #011627;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -32,7 +33,6 @@
     transform: translateX(-50%);
     width: 42px;
     height: 42px;
-    background: #011627;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -68,7 +68,8 @@
 }
 
 .menu li a:hover {
-    background: #0b71ac75;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
 }
 
 .icon {
@@ -98,7 +99,8 @@
 }
 
 .menu .menu-link.active {
-    background: #0b71ac;
+    background: rgba(243, 233, 233, 0.1);
+    backdrop-filter: blur(10px);
     color: #fff;
 }
 

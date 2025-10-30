@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
 import "../styles/style.css";
 import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
@@ -219,138 +220,159 @@ const QLPhongBan = () => {
   };
 
   return (
-    <div className="quanly-container qlct-container">
-      <div className="quanly-title qlct-title">
-        <h2>
-          <PiHouseFill style={{ marginRight: "0.3rem" }} />
-          Quản Lý Phòng Ban
-        </h2>
-      </div>
-
-      <div className="timvaloc timvaloc-border">
-        <div className="tim">
-          <input
-            type="text"
-            className="tim-input"
-            placeholder="Tìm theo mã, tên, trưởng phòng, công ty,..."
-          />
+    <div className="quanly-content">
+      <div className="quanly-container qlct-container">
+        <div className="quanly-title qlct-title">
+          <h2>
+            <PiHouseFill style={{ marginRight: "0.3rem" }} />
+            Phòng Ban
+          </h2>
         </div>
-      </div>
-
-      <div className="quanly-header qlct-header">
-        <div className="quanly-header-title qlct-header-title">
-          <h3>
-            Tổng số phòng ban: <span className="kpi">{departments.length}</span>
-          </h3>
-        </div>
-        <div className="quanly-them qlct-them">
-          <button className="button-them" onClick={openAdd}>
-            Thêm phòng ban
-          </button>
-        </div>
-      </div>
-
-      <div className="quanly-body qlct-body">
-        <div className="table-container">
-          <table className="quanly-table">
-            <thead className="quanly-thead qlct-thead">
-              <tr>
-                <th>STT</th>
-                <th>Mã PB</th>
-                <th>Tên Phòng Ban</th>
-                <th>Trưởng Phòng</th>
-                <th>Công Ty</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
-              {departments.map((pb, idx) => (
-                <tr key={pb.MaPB}>
-                  <td>{idx + 1}</td>
-                  <td>{pb.MaPB}</td>
-                  <td>{pb.TenPB}</td>
-                  <td>{pb.TruongPhongTen || "Chưa có"}</td>
-                  <td>{pb.TenCT || "—"}</td>
-                  <td>
-                    <button
-                      className="button-xem quanly-button-xem"
-                      onClick={() => openView(pb)}
-                    >
-                      <FaRegEye />
-                    </button>
-                    <button
-                      className="button-sua quanly-button-sua"
-                      onClick={() => openEdit(pb)}
-                    >
-                      <FiEdit2 />
-                    </button>
-                    <button
-                      className="button-xoa quanly-button-xoa"
-                      onClick={() => handleDelete(pb.MaPB)}
-                    >
-                      <MdDeleteOutline />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="quanly-phantrang">
-          <button
-            className="phantrang-btn"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <TfiBackLeft />
-          </button>
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              className={`phantrang-btn ${
-                currentPage === i + 1 ? "active" : ""
-              }`}
-              onClick={() => handlePageChange(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
-          <button
-            className="phantrang-btn"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <TfiBackRight />
-          </button>
-        </div>
-      </div>
-
-      {/* === Modal chung === */}
-      {showModal && (
-        <div
-          className="ql-overlay"
-          role="dialog"
-          aria-modal="true"
-          onClick={(e) => {
-            if (e.target.classList.contains("ql-overlay")) setShowModal(false);
-          }}
-        >
-          <div className="overlay-content">
-            <div className="overlay-header">
-              <h3>{modalTitle}</h3>
-              <button
-                className="overlay-close"
-                aria-label="Đóng"
-                onClick={() => setShowModal(false)}
-              >
-                <ImCancelCircle style={{ color: "red" }} />
-              </button>
+        <div className="quanly-title-sub" style={{ justifyContent: "left" }}>
+          <div className="ct-tong" style={{ margin: 0, width: "30%" }}>
+            <div className="quanly-title-sub-content">
+              <h3>Tổng phòng ban:<span className="tong">{departments.length}</span></h3>
             </div>
-            <div className="overlay-body">{renderModalContent()}</div>
           </div>
         </div>
-      )}
+        <div className='timvaloc timvaloc-border'>
+          <div className='tim'>
+            <input type="text" className='tim-input' placeholder='Tìm theo mã, tên, trưởng phòng, công ty,...' />
+          </div>
+          <div className='loc'>
+            <select className='loc-select' >
+              <option value="">--Lọc theo phòng ban--</option>
+            </select>
+            <select className='loc-select' >
+              <option value="">--Lọc theo trưởng phòng--</option>
+            </select>
+            <select className='loc-select' >
+              <option value="">--Lọc theo công ty--</option>
+            </select>
+          </div>
+        </div>
+        <div className="quanly-header qlct-header">
+          <div className="quanly-header-title qlct-header-title">
+            <h3>
+              Danh sách phòng ban
+            </h3>
+          </div>
+          <div className="quanly-them qlct-them">
+            <button className="button-them" onClick={openAdd}>
+              <IoAddCircle />
+              <div>Thêm</div>
+            </button>
+          </div>
+        </div>
+
+        <div className="quanly-body qlct-body">
+          <div className="table-container">
+            <table className="quanly-table">
+              <thead className="quanly-thead qlct-thead">
+                <tr>
+                  <th>STT</th>
+                  <th>Mã PB</th>
+                  <th>Tên Phòng Ban</th>
+                  <th>Trưởng Phòng</th>
+                  <th>Công Ty</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
+                {departments.map((pb, idx) => (
+                  <tr key={pb.MaPB}>
+                    <td>{idx + 1}</td>
+                    <td>{pb.MaPB}</td>
+                    <td>{pb.TenPB}</td>
+                    <td>{pb.TruongPhongTen || "Chưa có"}</td>
+                    <td>{pb.TenCT || "—"}</td>
+                    <td>
+                      <button
+                        className="button-xem quanly-button-xem"
+                        onClick={() => openView(pb)}
+                      >
+                        <FaRegEye />
+                      </button>
+                      <button
+                        className="button-sua quanly-button-sua"
+                        onClick={() => openEdit(pb)}
+                      >
+                        <FiEdit2 />
+                      </button>
+                      <button
+                        className="button-xoa quanly-button-xoa"
+                        onClick={() => handleDelete(pb.MaPB)}
+                      >
+                        <MdDeleteOutline />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="quanly-phantrang">
+            <button
+              className="phantrang-btn"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <TfiBackLeft />
+            </button>
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""
+                  }`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="phantrang-btn"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <TfiBackRight />
+            </button>
+          </div>
+        </div>
+
+        {/* === Modal chung === */}
+        {showModal &&
+          createPortal(
+            <div
+              className="ql-overlay"
+              role="dialog"
+              aria-modal="true"
+              onClick={(e) => {
+                if (e.target.classList.contains("ql-overlay")) setShowModal(false);
+              }}
+            >
+              <div className="overlay-content">
+                <div className="overlay-header">
+                  <h3 className="quanly-title qlct-title">
+                    <span style={{ display: "flex", alignItems: "center" }}>
+                      {modalTitle}
+                    </span>
+                  </h3>
+                  <button
+                    className="overlay-close"
+                    aria-label="Đóng"
+                    onClick={() => setShowModal(false)}
+                  >
+                    <ImCancelCircle style={{ color: "red" }} />
+                  </button>
+                </div>
+                <div className="overlay-body">{renderModalContent()}</div>
+              </div>
+            </div>,
+            document.body
+          )
+        }
+      </div>
     </div>
   );
 };
