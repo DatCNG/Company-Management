@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import "../styles/style.css";
-import { IoAddCircle } from "react-icons/io5";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { MdDeleteOutline } from "react-icons/md";
+
+import { FiEdit2 } from "react-icons/fi";
 
 const SuaMotCongViec = () => {
-    const [moTa, setMoTa] = useState("<p>Mô tả công ty...</p>");
+    const [moTa, setMoTa] = useState("<p>Mô tả công việc...</p>");
     return (
         <div className="quanly-container qlct-container">
-            <div className='them-body themct-body'>
+            <div className='them-body themct-body' style={{ margin: "0.5rem" }}>
+                <div className='form-gr' style={{ alignItems: "center", justifyContent: 'right' }}>
+                    <div className="form-gr-content" style={{ margin: 0, width: '50%' }}>
+                        <strong>Dự án:<p>-</p></strong>
+                    </div>
+                </div>
                 {/* Danh sách khối .them-body-next */}
                 <div className='them-body-scoll' style={{ maxHeight: '670px', overflowY: 'auto' }}>
                     <div className='them-body-next' style={{ marginBottom: '0.75rem' }}>
@@ -89,10 +94,10 @@ const SuaMotCongViec = () => {
                     <div className='button-group' style={{ marginRight: 0 }}>
                         <button className='button-cancel' type="button">Hủy</button>
                         <button
-                            className='button-add'
+                            className='button-them'
                             type="button"
                         >
-                            Sửa công việc
+                            <FiEdit2 style={{ marginRight: ".3rem" }} /> Sửa
                         </button>
                     </div>
                 </div>

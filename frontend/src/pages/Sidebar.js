@@ -37,12 +37,6 @@ const Sidebar = ({ show = true, toggle = () => {} }) => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/lanhdao" className={linkClass}>
-            <LiaChalkboardTeacherSolid className="icon" />
-            <span className="label">Lãnh Đạo</span>
-          </NavLink>
-        </li>
-        <li>
           <NavLink to="/quanlynhanvien" className={linkClass}>
             <IoIosPeople  className="icon" />
             <span className="label">Nhân Viên</span>

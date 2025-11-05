@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import axios from "axios";
 import "../styles/style.css";
 import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
 import { PiHouseFill } from "react-icons/pi";
@@ -14,93 +13,7 @@ import ThemPhongBan from "../components/ThemPhongBan";
 import XemPhongBan from "../components/XemPhongBan";
 import SuaPhongBan from "../components/SuaPhongBan";
 
-// ===== Component chọn trưởng phòng =====
-const ChonTruongPhong = ({ onClose, onPick }) => {
-  const [q, setQ] = useState("");
-  const [selected, setSelected] = useState(null);
-  const [list, setList] = useState([]);
-
-  // ✅ Gọi API danh sách nhân viên
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/employees")
-      .then((res) => setList(res.data))
-      .catch((err) => console.error("Lỗi tải danh sách nhân viên:", err));
-  }, []);
-
-  const filtered = useMemo(() => {
-    if (!q.trim()) return list;
-    const k = q.toLowerCase();
-    return list.filter(
-      (nv) =>
-        nv.MaNV.toLowerCase().includes(k) ||
-        nv.TenNV.toLowerCase().includes(k) ||
-        nv.SDT.includes(k)
-    );
-  }, [q, list]);
-
-  return (
-    <div className="chon-tp">
-      <div className="form-gr">
-        <div className="form-gr-content">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="chon-tp-search"
-            placeholder="Tìm theo mã, tên, SĐT…"
-          />
-        </div>
-      </div>
-
-      <div className="chon-tp-list">
-        {filtered.length === 0 ? (
-          <div className="chon-tp-empty">Không có nhân viên phù hợp.</div>
-        ) : (
-          filtered.map((nv) => (
-            <label key={nv.MaNV} className="chon-tp-item">
-              <input
-                type="radio"
-                name="truongphong"
-                value={nv.MaNV}
-                checked={selected?.MaNV === nv.MaNV}
-                onChange={() => setSelected(nv)}
-              />
-              <div className="chon-tp-meta">
-                <div className="chon-tp-line">
-                  <span className="chon-tp-name">{nv.TenNV}</span>
-                  <span className="chon-tp-id">{nv.MaNV}</span>
-                </div>
-                <div className="chon-tp-sub">
-                  <span>{nv.SDT}</span>
-                </div>
-              </div>
-            </label>
-          ))
-        )}
-      </div>
-
-      <div className="chon-tp-actions">
-        <button className="button-cancel" onClick={onClose}>
-          Hủy
-        </button>
-        <button
-          className="btn-primary"
-          disabled={!selected}
-          onClick={() => {
-            onPick(selected);
-            onClose();
-          }}
-        >
-          Chọn làm trưởng phòng
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ===== Trang chính: Quản lý Phòng Ban =====
 const QLPhongBan = () => {
-  const API_URL = "http://localhost:5000/api/departments";
   const ITEMS_PER_PAGE = 5;
   const tbodyRef = useRef(null);
 
@@ -117,22 +30,8 @@ const QLPhongBan = () => {
     [totalRows]
   );
 
-  // === Fetch dữ liệu thật ===
-  const fetchDepartments = async () => {
-    try {
-      const res = await axios.get(API_URL);
-      setDepartments(res.data);
-      setTotalRows(res.data.length);
-    } catch (err) {
-      console.error("Lỗi tải danh sách phòng ban:", err);
-    }
-  };
 
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
-
-  // === Phân trang ===
+  // === Phân trang DOM-based như cũ ===
   const applyPagination = () => {
     const tbody = tbodyRef.current;
     if (!tbody) return;
@@ -170,16 +69,13 @@ const QLPhongBan = () => {
       return (
         <ThemPhongBan
           onClose={() => setShowModal(false)}
-          onAdded={fetchDepartments}
         />
       );
     if (modalType === "view") return <XemPhongBan data={modalData} />;
     if (modalType === "edit")
       return (
         <SuaPhongBan
-          data={modalData}
           onClose={() => setShowModal(false)}
-          onUpdated={fetchDepartments}
         />
       );
     return null;
@@ -189,35 +85,22 @@ const QLPhongBan = () => {
     modalType === "add" ? (
       <div className="quanly-title qlct-title">
         <h2>
-          <IoAddCircle /> Thêm Phòng Ban
+          <IoAddCircle style={{ marginRight: "0.3rem" }} /> Thêm Phòng Ban
         </h2>
       </div>
     ) : modalType === "view" ? (
       <div className="quanly-title qlct-title">
         <h2>
-          <FaEye /> Xem Phòng Ban
+          <FaEye style={{ marginRight: "0.3rem" }} /> Xem Phòng Ban
         </h2>
       </div>
     ) : modalType === "edit" ? (
       <div className="quanly-title qlct-title">
         <h2>
-          <FiEdit2 /> Sửa Phòng Ban
+          <FiEdit2 style={{ marginRight: "0.3rem" }} /> Sửa Phòng Ban
         </h2>
       </div>
     ) : null;
-
-  // === Xóa phòng ban ===
-  const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa phòng ban này?")) return;
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      alert("✅ Đã xóa phòng ban!");
-      fetchDepartments();
-    } catch (err) {
-      console.error("Lỗi khi xóa phòng ban:", err);
-      alert("❌ Không thể xóa!");
-    }
-  };
 
   return (
     <div className="quanly-content">
@@ -231,10 +114,14 @@ const QLPhongBan = () => {
         <div className="quanly-title-sub" style={{ justifyContent: "left" }}>
           <div className="ct-tong" style={{ margin: 0, width: "30%" }}>
             <div className="quanly-title-sub-content">
-              <h3>Tổng phòng ban:<span className="tong">{departments.length}</span></h3>
+              <h3>
+                Tổng phòng ban:
+                <span className="tong"></span>
+              </h3>
             </div>
           </div>
         </div>
+
         <div className='timvaloc timvaloc-border'>
           <div className='tim'>
             <input type="text" className='tim-input' placeholder='Tìm theo mã, tên, trưởng phòng, công ty,...' />
@@ -251,11 +138,10 @@ const QLPhongBan = () => {
             </select>
           </div>
         </div>
+
         <div className="quanly-header qlct-header">
           <div className="quanly-header-title qlct-header-title">
-            <h3>
-              Danh sách phòng ban
-            </h3>
+            <h3>Danh sách phòng ban</h3>
           </div>
           <div className="quanly-them qlct-them">
             <button className="button-them" onClick={openAdd}>
@@ -275,39 +161,38 @@ const QLPhongBan = () => {
                   <th>Tên Phòng Ban</th>
                   <th>Trưởng Phòng</th>
                   <th>Công Ty</th>
+                  <th>SL Nhân Viên</th>
                   <th>Hành động</th>
                 </tr>
               </thead>
               <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
-                {departments.map((pb, idx) => (
-                  <tr key={pb.MaPB}>
-                    <td>{idx + 1}</td>
-                    <td>{pb.MaPB}</td>
-                    <td>{pb.TenPB}</td>
-                    <td>{pb.TruongPhongTen || "Chưa có"}</td>
-                    <td>{pb.TenCT || "—"}</td>
-                    <td>
-                      <button
-                        className="button-xem quanly-button-xem"
-                        onClick={() => openView(pb)}
-                      >
-                        <FaRegEye />
-                      </button>
-                      <button
-                        className="button-sua quanly-button-sua"
-                        onClick={() => openEdit(pb)}
-                      >
-                        <FiEdit2 />
-                      </button>
-                      <button
-                        className="button-xoa quanly-button-xoa"
-                        onClick={() => handleDelete(pb.MaPB)}
-                      >
-                        <MdDeleteOutline />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                <tr>
+                  <td>1</td>
+                  <td>PB01</td>
+                  <td>Phòng ban 01</td>
+                  <td>Nguyễn Văn A</td>
+                  <td>Công ty 01</td>
+                  <td>5</td>
+                  <td>
+                    <button
+                      className="button-xem quanly-button-xem"
+                      onClick={() => openView()}
+                    >
+                      <FaRegEye />
+                    </button>
+                    <button
+                      className="button-sua quanly-button-sua"
+                      onClick={() => openEdit()}
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className="button-xoa quanly-button-xoa"
+                    >
+                      <MdDeleteOutline />
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -323,8 +208,7 @@ const QLPhongBan = () => {
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
-                className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""
-                  }`}
+                className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""}`}
                 onClick={() => handlePageChange(i + 1)}
               >
                 {i + 1}
@@ -340,7 +224,7 @@ const QLPhongBan = () => {
           </div>
         </div>
 
-        {/* === Modal chung === */}
+        {/* Modal */}
         {showModal &&
           createPortal(
             <div
@@ -370,8 +254,7 @@ const QLPhongBan = () => {
               </div>
             </div>,
             document.body
-          )
-        }
+          )}
       </div>
     </div>
   );

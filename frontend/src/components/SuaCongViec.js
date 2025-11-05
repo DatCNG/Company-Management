@@ -1,9 +1,14 @@
+//Sửa nhiều công việc trong DỰ ÁN
+
 import React, { useState } from 'react';
-import "../styles/style.css";
+
 import { IoAddCircle } from "react-icons/io5";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { MdDeleteOutline } from "react-icons/md";
+import { FiEdit2 } from "react-icons/fi";
+
+import "../styles/style.css";
 
 const SuaCongViec = () => {
   // Mỗi phần (khối) là 1 object độc lập
@@ -63,11 +68,18 @@ const SuaCongViec = () => {
   };
 
   return (
-    <div className="quanly-container qlct-container">
+    <div className="quanly-container qlct-container" style={{ margin: "0.5rem" }}>
       <div className='them-body themct-body'>
-        <h2 style={{ margin: '0 0 0.5rem' }}>
-          Tổng số lượng công việc: {sections.length}
-        </h2>
+        <div className='form-gr' style={{ alignItems: "center" }}>
+          <div className='form-gr-content' style={{ margin: 0 }}>
+            <h3 style={{ margin: '0 0 0.5rem' }}>
+              Tổng số lượng công việc: {sections.length}
+            </h3>
+          </div>
+          <div className="form-gr-content" style={{ margin: 0 }}>
+            <strong>Dự án:<p>-</p></strong>
+          </div>
+        </div>
 
         {/* Danh sách khối .them-body-next */}
         <div className='them-body-scoll' style={{ maxHeight: '670px', overflowY: 'auto' }}>
@@ -175,11 +187,11 @@ const SuaCongViec = () => {
           <div className='button-group' style={{ marginRight: 0 }}>
             <button className='button-cancel' type="button" onClick={resetAll}>Hủy</button>
             <button
-              className='button-add'
+              className='button-them'
               type="button"
               onClick={() => console.log("Dữ liệu gửi lên:", sections)}
             >
-              Sửa công việc
+              <FiEdit2 style={{ marginRight: ".3rem" }} /> Sửa
             </button>
           </div>
         </div>

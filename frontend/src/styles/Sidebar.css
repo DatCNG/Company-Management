@@ -14,7 +14,7 @@
     display: flex;
     flex-direction: column;
     padding-top: 60px;
-    transition: width 0.3s;
+    transition: width 0.3s, background 0.3s ease;
     z-index: 1;
 }
 
@@ -24,6 +24,23 @@
 
 .sidenav.collapsed {
     width: 60px;
+}
+
+/* Khi hover vào collapsed -> tự mở rộng + đổi màu đậm */
+.sidenav.collapsed:hover {
+    width: 200px;
+    background: rgba(0, 0, 0, 0.5);   /* nền đậm hơn */
+    backdrop-filter: blur(12px);
+}
+
+.sidenav.collapsed:hover ~ .main {
+    margin-left: 200px;
+}
+
+.sidenav.collapsed:hover .label {
+    opacity: 1;
+    width: auto;
+    pointer-events: auto;
 }
 
 .toggle-btn {
@@ -64,12 +81,16 @@
     text-decoration: none;
     border-radius: 6px;
     white-space: nowrap;
-    transition: background 0.25s;
+    transition: background 0.25s, transform 0.25s;
 }
 
+/* Hover: màu đậm hơn rõ ràng */
 .menu li a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
+    background: rgba(72, 170, 232, 0.67); /* xanh dương đậm hơn */
+    backdrop-filter: blur(8px);
+    color: #fff;
+    transform: translateX(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .icon {
@@ -92,16 +113,19 @@
     flex: 1;
     transition: margin-left 0.3s;
     margin-left: 60px;
+    backdrop-filter: blur(10px);
 }
 
 .main.shifted {
     margin-left: 200px;
 }
 
+/* Active item */
 .menu .menu-link.active {
-    background: rgba(243, 233, 233, 0.1);
+    background: rgba(4, 152, 210, 0.355); /* đậm hơn hover */
     backdrop-filter: blur(10px);
     color: #fff;
+    font-weight: 600;
 }
 
 @media (max-width: 991.98px) {

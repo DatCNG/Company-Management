@@ -17,6 +17,9 @@
 .account {
     display: flex;
     align-items: center;
+    cursor: pointer;
+    position: relative;
+    z-index: 1000; /* thêm để nổi lên */
 }
 
 .account-button {
@@ -31,5 +34,48 @@
     display: inline-block;
     font-size: 14px;
     cursor: pointer;
+    z-index: 9999 !important; /* Max để không bị che */
 }
 
+/* Dropdown menu */
+.dropdown-menu {
+    position: absolute;
+    top: 40px;
+    /* đúng bằng chiều cao navbar */
+    right: 5px;
+    background: #fff;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 160px;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease;
+    z-index: 10000;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Animation nhỏ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

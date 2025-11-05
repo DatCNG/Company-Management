@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import axios from "axios";
 import "../styles/style.css";
 import { IoAddCircle } from "react-icons/io5";
 
@@ -18,33 +17,10 @@ const ThemCongTy = ({ onClose, onAdded }) => {
     if (file) setAnhFile(file);
   };
 
-  // ✅ Gửi dữ liệu về server
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const formData = new FormData();
-      formData.append("TenCT", tenCT);
-      formData.append("MoTa", moTa);
-      if (anhFile) formData.append("Anh", anhFile);
-
-      await axios.post("http://localhost:5000/api/companies", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      alert("✅ Thêm công ty thành công!");
-      onClose(); // đóng modal
-      onAdded?.(); // reload danh sách
-    } catch (err) {
-      console.error(err);
-      alert("❌ Lỗi khi thêm công ty!");
-    }
-  };
-
   return (
     <div className="quanly-container qlct-container">
       <div className="them-body themct-body">
-        <form className="form themct-form" onSubmit={handleSubmit}>
+        <form className="form themct-form">
           <div className="form-gr">
             <div className="form-gr-content">
               <label className="label">Tên công ty:</label>
@@ -52,9 +28,6 @@ const ThemCongTy = ({ onClose, onAdded }) => {
                 type="text"
                 className="input"
                 placeholder="Nhập tên công ty"
-                value={tenCT}
-                onChange={(e) => setTenCT(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -125,8 +98,8 @@ const ThemCongTy = ({ onClose, onAdded }) => {
             <button type="button" className="button-cancel" onClick={onClose}>
               Hủy
             </button>
-            <button type="submit" className="button-add">
-              <IoAddCircle style={{ marginRight: "5px" }} /> Thêm công ty
+            <button type="submit" className="button-them">
+              <IoAddCircle style={{ marginRight: "5px" }} /> Thêm
             </button>
           </div>
         </form>

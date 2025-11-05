@@ -11,9 +11,7 @@ import { IoAddCircle } from "react-icons/io5";
 
 import ThemDuAn from "../components/ThemDuAn";
 import SuaDuAn from "../components/SuaDuAn";
-import XemCongTy from "../components/XemCongTy";
-
-import axios from "axios";
+import XemDuAn from "../components/XemDuAn";
 
 const QLDuAn = () => {
   const navigate = useNavigate();
@@ -22,7 +20,6 @@ const QLDuAn = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
-  const [duAnList, setDuAnList] = useState([]); // dữ liệu từ API
 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null); // add | edit | view
@@ -32,21 +29,6 @@ const QLDuAn = () => {
     () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
     [totalRows]
   );
-
-  // ======= Gọi API lấy danh sách dự án =======
-  const fetchDuAn = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/duan");
-      setDuAnList(res.data);
-      setTotalRows(res.data.length);
-    } catch (err) {
-      console.error("❌ Lỗi khi tải danh sách dự án:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchDuAn();
-  }, []);
 
   // ======= Phân trang =======
   const applyPagination = () => {
@@ -62,7 +44,7 @@ const QLDuAn = () => {
 
   useEffect(() => {
     applyPagination();
-  }, [currentPage, duAnList]);
+  }, [currentPage]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
@@ -98,34 +80,22 @@ const QLDuAn = () => {
     setShowModal(true);
   };
 
-  // ======= Xóa dự án =======
-  const handleDelete = async (MaDA) => {
-    if (!window.confirm("Bạn có chắc muốn xóa dự án này không?")) return;
-    try {
-      await axios.delete(`http://localhost:5000/api/duan/${MaDA}`);
-      setDuAnList((prev) => prev.filter((item) => item.MaDA !== MaDA));
-    } catch (err) {
-      console.error("❌ Lỗi khi xóa dự án:", err);
-      alert("Không thể xóa dự án!");
-    }
-  };
 
   // ======= Render modal nội dung =======
   const renderModalContent = () => {
     if (modalType === "add")
       return (
-        <ThemDuAn onClose={() => setShowModal(false)} onRefresh={fetchDuAn} />
+        <ThemDuAn onClose={() => setShowModal(false)} />
       );
     if (modalType === "edit")
       return (
         <SuaDuAn
           data={modalData}
           onClose={() => setShowModal(false)}
-          onRefresh={fetchDuAn}
         />
       );
     if (modalType === "view")
-      return <XemCongTy data={modalData} onClose={() => setShowModal(false)} />;
+      return <XemDuAn data={modalData} onClose={() => setShowModal(false)} />;
     return null;
   };
 
@@ -165,7 +135,7 @@ const QLDuAn = () => {
         <div className="quanly-title-sub">
           <div className="ct-tong">
             <div className="quanly-title-sub-content">
-              <h3>Tổng dự án:<span className="tong">{duAnList.length}</span></h3>
+              <h3>Tổng dự án:<span className="tong">-</span></h3>
             </div>
           </div>
           <div className="ct-hoatdong">
@@ -175,14 +145,14 @@ const QLDuAn = () => {
           </div>
           <div className="ct-tamngung">
             <div className="quanly-title-sub-content">
-              <h3>Đang hoàn thành:<span className="tamngung">5</span></h3>
+              <h3>Đang thực hiện:<span className="tamngung">5</span></h3>
             </div>
           </div>
         </div>
         {/* ======= Thanh tìm kiếm & lọc ======= */}
         <div className='timvaloc timvaloc-border'>
           <div className='tim'>
-            <input type="text" className='tim-input' placeholder='Tìm theo mã, tên, trưởng phòng, công ty,...' />
+            <input type="text" className='tim-input' placeholder='Tìm theo mã, tên dự án, trưởng dự án,...' />
           </div>
           <div className='loc'>
             <select className='loc-select' >
@@ -229,45 +199,34 @@ const QLDuAn = () => {
                 </tr>
               </thead>
               <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
-                {duAnList.map((item, index) => (
-                  <tr key={item.MaDA}>
-                    <td>{index + 1}</td>
-                    <td>{item.MaDA}</td>
-                    <td>{item.TenDA}</td>
-                    <td>{item.TenTruongDA || "—"}</td>
-                    <td>
-                      {item.NgayBatDau
-                        ? new Date(item.NgayBatDau).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td>
-                      {item.NgayKetThuc
-                        ? new Date(item.NgayKetThuc).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td>{item.TrangThai ? "Hoàn thành" : "Đang thực hiện"}</td>
-                    <td>
-                      <button
-                        className="button-xem quanly-button-xem"
-                        onClick={() => openView(item)}
-                      >
-                        <FaRegEye />
-                      </button>
-                      <button
-                        className="button-sua quanly-button-sua"
-                        onClick={() => openEdit(item)}
-                      >
-                        <FiEdit2 />
-                      </button>
-                      <button
-                        className="button-xoa quanly-button-xoa"
-                        onClick={() => handleDelete(item.MaDA)}
-                      >
-                        <MdDeleteOutline />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                <tr>
+                  <td>1</td>
+                  <td>DA01</td>
+                  <td>Dự Án 01</td>
+                  <td>Nguyễn Văn A</td>
+                  <td>1-1-2025</td>
+                  <td>1-2-2025</td>
+                  <td>Đã hoàn thành</td>
+                  <td>
+                    <button
+                      className="button-xem quanly-button-xem"
+                      onClick={() => openView()}
+                    >
+                      <FaRegEye />
+                    </button>
+                    <button
+                      className="button-sua quanly-button-sua"
+                      onClick={() => openEdit()}
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className="button-xoa quanly-button-xoa"
+                    >
+                      <MdDeleteOutline />
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

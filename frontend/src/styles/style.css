@@ -4,15 +4,6 @@
     justify-content: right;
 }
 
-.quanly-title {
-    display: flex;
-}
-
-.quanly-title h2:last-child {
-    margin-left: 0.3rem;
-}
-
-
 .them-body-border {
     padding: 1rem;
     border-radius: 10px;
@@ -79,20 +70,6 @@
     opacity: 0.5;
     cursor: not-allowed;
     filter: grayscale(0.3);
-}
-
-.button-them {
-    padding: 8px 16px;
-    background-color: #0078d7;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.button-them:hover {
-    background-color: #005fa3;
 }
 
 .button-chontp {
@@ -210,22 +187,6 @@
     width: 50%;
 }
 
-/* Form - Chi tiết */
-.form-gr {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    /* flex-wrap: wrap; */
-}
-
-.form-gr-content {
-    width: 100%;
-    margin-right: 1rem;
-    margin-left: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-}
 
 .form-gr-content input,
 .form-gr-content select,
@@ -501,7 +462,6 @@
     width: 100%;
     align-items: center;
     justify-content: center;
-    margin-bottom: 2rem;
 }
 
 .avatar-img {
@@ -510,142 +470,6 @@
     border-radius: 100%;
     background-color: #005fa3;
 }
-
-/* Chọn trưởng phòng */
-/* --- Form chọn trưởng phòng --- */
-.chon-tp {
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
-}
-
-.chon-tp-tools {
-    display: flex;
-    justify-content: space-between;
-    gap: .5rem;
-}
-
-.chon-tp-search {
-    width: 100%;
-    padding: .5rem .75rem;
-    border: 1px solid #ddd;
-    border-radius: .5rem;
-}
-
-.chon-tp-list {
-    height: 320px;
-    /* cuộn gọn */
-    overflow-y: auto;
-    border: 1px solid #eee;
-    border-radius: .5rem;
-    padding: .25rem;
-    background: #fff;
-    margin: 0 1rem;
-    max-height: 320px;
-}
-
-/* mỗi item là 1 label -> click cả hàng */
-.chon-tp-item {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    /* radio cùng hàng với nội dung */
-    gap: .75rem;
-    padding: .5rem .6rem;
-    border-radius: .5rem;
-    cursor: pointer;
-}
-
-.chon-tp-item:hover {
-    background: #f7f7f7;
-}
-
-.chon-tp-item input[type="radio"] {
-    margin: 0;
-    /* radio gọn, thẳng hàng */
-}
-
-.chon-tp-meta {
-    display: flex;
-    flex-direction: column;
-    gap: .2rem;
-}
-
-.chon-tp-line {
-    display: flex;
-    gap: .5rem;
-    align-items: baseline;
-    flex-wrap: wrap;
-}
-
-.chon-tp-name {
-    font-weight: 600;
-}
-
-.chon-tp-id {
-    font-size: .9rem;
-    color: #666;
-}
-
-.chon-tp-sub {
-    font-size: .9rem;
-    color: #555;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.chon-tp-empty {
-    padding: 1rem;
-    text-align: center;
-    color: #888;
-}
-
-.chon-tp-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: .5rem;
-    margin: .25rem 1rem 0;
-}
-
-.btn-primary,
-.btn-secondary {
-    padding: .5rem .9rem;
-    border-radius: .5rem;
-    border: 1px solid transparent;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: #28a745;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #10832b;
-}
-
-.btn-primary:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-
-.btn-secondary {
-    background: #f3f4f6;
-    border-color: #e5e7eb;
-}
-
-.chon-tp-badge {
-    margin-top: .25rem;
-    font-size: .95rem;
-    background: #f1f5ff;
-    color: #1f3fb4;
-    padding: .25rem .5rem;
-    border-radius: .375rem;
-    display: inline-block;
-}
-
-
 
 /* -------------------------------------------------------------------------------------------------------------------- */
 /* Chung */
@@ -670,7 +494,6 @@ h6 {
     margin: 0;
     padding: 0;
 }
-
 
 /*-------------- WALLPAPER TOÀN MÀN HÌNH -----------------*/
 :root {
@@ -725,10 +548,6 @@ body::after {
     width: 100%;
     margin: 0;
     height: 100vh;
-    background-color: white;
-    background: rgba(0, 0, 0, 0.1);
-    /* nền trong suốt 30% */
-    backdrop-filter: blur(10px);
     /* làm mờ nhẹ nền phía sau */
 }
 
@@ -742,7 +561,22 @@ body::after {
     align-items: center;
 }
 
+.quanly-title h2:last-child {
+    margin-left: 0.3rem;
+}
+
+
 /* Title - Quản lý */
+.quanly-title {
+    display: flex;
+    align-items: center;
+}
+
+.quanly-title h2 {
+    display: flex;
+    align-items: center;
+}
+
 .quanly-title-sub {
     display: flex;
     margin: 0.5rem 0;
@@ -1063,6 +897,9 @@ body::after {
     display: flex;
     font-weight: 600;
     margin-bottom: 0.25rem;
+    white-space: nowrap;
+    align-items: center;
+    width: 100%;
 }
 
 .form-gr-content strong p {
@@ -1216,6 +1053,285 @@ body::after {
 /* Giữ toolbar của CKEditor không bị che */
 .ck.ck-editor__top {
     z-index: 1;
+}
+
+/* -------------------Các trang chi tiết---------------------- */
+.chitiet-content {
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.chitiet-one {
+    display: flex;
+}
+
+/* -----------------Các trang con trong trang con------------------- */
+/* Chọn trưởng phòng/Thêm nhân viên phòng ban */
+/* --- Form chọn trưởng phòng --- */
+.chon-tp {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.chon-tp-tools {
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.chon-tp-search {
+    width: 100%;
+    padding: .5rem .75rem;
+    border: 1px solid #ddd;
+    border-radius: .5rem;
+}
+
+.chon-tp-list {
+    height: 320px;
+    /* cuộn gọn */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: .5rem;
+    padding: .25rem;
+    background: #fff;
+    margin: 0 1rem;
+    max-height: 320px;
+}
+
+/* mỗi item là 1 label -> click cả hàng */
+.chon-tp-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    /* radio cùng hàng với nội dung */
+    gap: .75rem;
+    padding: .5rem .6rem;
+    border-radius: .5rem;
+    cursor: pointer;
+}
+
+.chon-tp-item:hover {
+    background: #f7f7f7;
+}
+
+.chon-tp-item input[type="radio"] {
+    margin: 0;
+    /* radio gọn, thẳng hàng */
+}
+
+.chon-tp-meta {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+}
+
+.chon-tp-line {
+    display: flex;
+    gap: .5rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.chon-tp-name {
+    font-weight: 600;
+}
+
+.chon-tp-id {
+    font-size: .9rem;
+    color: #666;
+}
+
+.chon-tp-sub {
+    font-size: .9rem;
+    color: #555;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.chon-tp-empty {
+    padding: 1rem;
+    text-align: center;
+    color: #888;
+}
+
+.chon-tp-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin: .25rem 1rem 0;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #28a745;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #10832b;
+}
+
+.btn-primary:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.chon-tp-badge {
+    margin-top: .25rem;
+    font-size: .95rem;
+    background: #f1f5ff;
+    color: #1f3fb4;
+    padding: .25rem .5rem;
+    border-radius: .375rem;
+    display: inline-block;
+}
+
+/* Hàng công tơ khi đã chọn */
+.chon-tp-item.is-checked {
+    background: #f1fff5;
+}
+
+/* Thanh công cụ bên phải */
+.chon-tp-tools-right {
+    display: flex;
+    gap: .5rem;
+    margin-right: 1rem;
+}
+
+/* Vùng badge các nhân viên đã chọn */
+.chon-tp-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem .5rem;
+    margin: 0 .25rem;
+}
+
+/* Badge nâng cấp để có nút x */
+.chon-tp-badge {
+    margin-top: .25rem;
+    font-size: .95rem;
+    background: #f1f5ff;
+    color: #1f3fb4;
+    padding: .25rem .5rem;
+    border-radius: .375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.chon-tp-badge-id {
+    opacity: .8;
+    font-weight: 500;
+}
+
+.chon-tp-badge-x {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0 .15rem;
+    opacity: .7;
+}
+
+.chon-tp-badge-x:hover {
+    opacity: 1;
+}
+
+.chon-tp-count {
+    margin-right: auto;
+    padding-left: 1rem;
+    color: #333;
+}
+
+/* Nhóm nút hành động cuối cùng */
+.chon-tp-actions-right {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+}
+
+/* Col */
+.col-4 {
+    width: 40%;
+}
+
+/* Đổi thông tin cá nhân */
+.chitiet-title {
+    display: flex;
+    align-items: center;
+}
+
+.form-gr-content strong input,
+.form-gr-content strong select {
+    margin-left: 0.5rem;
+}
+.button-primary {
+    padding: .45rem .8rem;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer
+}
+
+.button-primary:disabled {
+    opacity: .6;
+    cursor: not-allowed
+}
+
+.button-outline {
+    padding: .45rem .8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer
+}
+
+.button-avt {
+    padding: .45rem .8rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    color: blue;
+}
+
+.edit-pf {
+    display: flex;
+    justify-content: right;
+}
+
+.edit-pf button {
+    margin: 0 4px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    background-color: #ffc107;
+}
+
+.edit-pf button:hover {
+    opacity: 0.9;
+    background-color: #ffc107;
 }
 
 /* Media */

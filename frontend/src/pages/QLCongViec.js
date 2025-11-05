@@ -17,6 +17,7 @@ import { ImCancelCircle } from "react-icons/im";
 import ThemCongViec from '../components/ThemCongViec';
 import SuaCongViec from "../components/SuaCongViec";
 import XemCongViec from '../components/XemCongTy';
+import SuaMotCongViec from '../components/SuaMotCongViec';
 
 const QLCongViec = () => {
     const navigate = useNavigate();
@@ -93,25 +94,30 @@ const QLCongViec = () => {
         setModalData(data);
         setShowModal(true);
     };
+    const openEdit_cv = (data = null) => {
+        setModalType("edit-cv");
+        setModalData(data);
+        setShowModal(true);
+    };
 
     // Chọn component cho modal
     const renderModalContent = () => {
         if (modalType === "add") return <ThemCongViec onClose={() => setShowModal(false)} />;
-        // if (modalType === "view")
-        //     return (
-        //         // Có thể truyền props dữ liệu sau (modalData)
-        //         <XemNhanVien />
-        //     );
+        if (modalType === "view")
+            return (
+                // Có thể truyền props dữ liệu sau (modalData)
+                <XemCongViec />
+            );
         if (modalType === "edit")
             return (
                 // Có thể truyền props dữ liệu sau (modalData)
                 <SuaCongViec />
             );
-        // if (modalType === "add_cv")
-        //     return (
-        //         // Có thể truyền props dữ liệu sau (modalData)
-        //         <XemCongTy />
-        //     );
+        if (modalType === "edit-cv")
+            return (
+                // Có thể truyền props dữ liệu sau (modalData)
+                <SuaMotCongViec />
+            );
         return null;
     };
 
@@ -134,6 +140,13 @@ const QLCongViec = () => {
                 </h2>
             </div>
         ) : modalType === "edit" ? (
+            <div className='quanly-title qlct-title'>
+                <h2><FiEdit2 style={{ marginRight: "0.3rem" }} />Sửa Công Việc:</h2>
+                <h2>
+                    {modalData?.ten || "Công Việc 1"}
+                </h2>
+            </div>
+        ) : modalType === "edit-cv" ? (
             <div className='quanly-title qlct-title'>
                 <h2><FiEdit2 style={{ marginRight: "0.3rem" }} />Sửa Công Việc:</h2>
                 <h2>
@@ -168,14 +181,14 @@ const QLCongViec = () => {
                 </div>
                 <div className='timvaloc timvaloc-border'>
                     <div className='tim'>
-                        <input type="text" className='tim-input' placeholder='Tìm theo mã, tên, trưởng phòng, công ty,...' />
+                        <input type="text" className='tim-input' placeholder='Tìm theo mã, tên công việc, tên dự án,...' />
                     </div>
                     <div className='loc'>
                         <select className='loc-select' >
-                            <option value="">-- Lọc theo dự án --</option>
+                            <option value="">-- Lọc theo công việc --</option>
                         </select>
                         <select className='loc-select' >
-                            <option value="">-- Lọc theo trưởng dự án --</option>
+                            <option value="">-- Lọc theo dự án --</option>
                         </select>
                         <select className='loc-select' >
                             <option value="">-- Lọc theo trạng thái --</option>
@@ -217,8 +230,8 @@ const QLCongViec = () => {
                                     <td>1-3-2025</td>
                                     <td>Đã hoàn thành</td>
                                     <td>
-                                        <button className='button-xem quanly-button-xem'><FaRegEye /></button>
-                                        <button className='button-sua quanly-button-sua' onClick={openEdit}><FiEdit2 /></button>
+                                        <button className='button-xem quanly-button-xem' onClick={openView}><FaRegEye /></button>
+                                        <button className='button-sua quanly-button-sua' onClick={openEdit_cv}><FiEdit2 /></button>
                                         <button className='button-xoa quanly-button-xoa'><MdDeleteOutline /></button>
                                     </td>
                                 </tr>

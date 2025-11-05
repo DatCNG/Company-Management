@@ -1,166 +1,449 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
+import { FaRegEye, FaEye } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
+
 import "../styles/style.css";
 
-const XemNhanVien = ({ data, onClose }) => {
-  const [nv, setNv] = useState(null);
+const XemNhanVien = () => {
+  // Phân trang
+  const ITEMS_PER_PAGE = 5;
+  const tbodyRef = useRef(null);
 
-  // Nếu đã có dữ liệu nhân viên từ props thì dùng, nếu không thì fetch từ API
+  // ========== STATE ==========
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
+
+  // Edit mode cho cột trái
+  const [editMode, setEditMode] = useState(false);
+
+  // Form state chỉ dùng cho cột trái
+  const [form, setForm] = useState({
+    fullName: "Cao Nguyễn Gia Đạt",
+    email: "cngdat@gmail.com",
+    phone: "0949566519",
+    gioitinh: "",
+    ngaysinh: "",
+    diachi: "",
+    // có thể mở rộng thêm trường khác nếu bạn muốn hiển thị ở cột trái
+  });
+
+  // Lưu tạm để cho phép Hủy
+  const [backupForm, setBackupForm] = useState(form);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
+    [totalRows]
+  );
+
+  const applyPagination = () => {
+    const tbody = tbodyRef.current;
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    rows.forEach((tr, idx) => {
+      tr.style.display = idx >= start && idx < end ? "" : "none";
+    });
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!data) return;
-      if (data?.TenNV) {
-        setNv(data);
-      } else {
-        try {
-          const res = await axios.get(
-            `http://localhost:5000/api/employees/${data.MaNV}`
-          );
-          setNv(res.data);
-        } catch (err) {
-          console.error("❌ Lỗi tải nhân viên:", err);
-        }
-      }
-    };
-    fetchData();
-  }, [data]);
+    applyPagination();
+  }, [currentPage, totalRows]);
 
-  if (!nv)
-    return (
-      <div style={{ textAlign: "center", padding: "1rem" }}>
-        Đang tải thông tin nhân viên...
-      </div>
-    );
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  // ====== Handlers cho edit mode cột trái ======
+  const onStartEdit = () => {
+    setBackupForm(form); // lưu lại để có thể hủy
+    setEditMode(true);
+  };
+
+  const onCancelEdit = () => {
+    setForm(backupForm); // khôi phục
+    setEditMode(false);
+  };
+
+  const onSave = () => {
+    // Frontend only: tạm thời coi như đã lưu
+    setEditMode(false);
+  };
+
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div className="quanly-container qlct-container">
       <div className="chitiet chitiet-pb">
-        {/* Avatar */}
-        <div className="form-gr" style={{ justifyContent: "center" }}>
-          <div className="avatar" style={{ textAlign: "center" }}>
-            <img
-              src={
-                nv.Avatar
-                  ? `http://localhost:5000/uploads/${nv.Avatar}`
-                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              }
-              alt="avatar"
-              className="avatar-img"
-              style={{
-                width: "150px",
-                height: "150px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "2px solid #ddd",
-              }}
-            />
-            <p style={{ marginTop: "0.5rem", fontWeight: 600 }}>
-              {nv.TenNV || "Không rõ"}
-            </p>
+        <div className="chitiet-one">
+          {/* ========== CỘT TRÁI ========== */}
+          <div className="chitiet-content col-4">
+            {/* Nút edit ở góc trên */}
+            {!editMode && (
+              <div className="edit-pf">
+                <button title="Sửa thông tin" onClick={onStartEdit}>
+                  <FaEdit />
+                </button>
+              </div>
+            )}
+
+            <div className="form-gr" style={{ justifyContent: "center" }}>
+              <div className="avatar" style={{ textAlign: "center" }}>
+                <img
+                  className="avatar-img"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "2px solid #ddd",
+                  }}
+                  alt="avatar"
+                  src=""
+                />
+
+                {/* Nếu đang sửa thì hiện nút Thay Avatar */}
+              </div>
+            </div>
+            {editMode && (
+              <div style={{
+                marginTop: ".75rem",
+                display: "flex",
+                justifyContent: "center"
+              }}>
+                <button
+                  type="button"
+                  className="button-avt"
+                  onClick={() => alert("Chỉ minh họa front-end: mở file chooser")}
+                >
+                  Đổi ảnh đại diện
+                </button>
+              </div>
+            )}
+
+            {/* Họ và tên */}
+            <div className="form-gr under-line" style={{ marginTop: '1.5rem' }}>
+              <div className="form-gr-content">
+                <strong>Họ và tên:
+                  {!editMode ? (
+                    <p>{form.fullName}</p>
+                  ) : (
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={form.fullName}
+                      onChange={onChange}
+                      className="input"
+                      placeholder="Nhập họ và tên"
+                    />
+                  )}
+                </strong>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="form-gr under-line">
+              <div className="form-gr-content">
+                <strong>Email:
+                  {!editMode ? (
+                    <p>{form.email}</p>
+                  ) : (
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={onChange}
+                      className="input"
+                      placeholder="Nhập email"
+                    />
+                  )}
+                </strong>
+              </div>
+            </div>
+
+            {/* SĐT */}
+            <div className="form-gr under-line">
+              <div className="form-gr-content">
+                <strong>SĐT:
+                  {!editMode ? (
+                    <p>{form.phone}</p>
+                  ) : (
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={form.phone}
+                      onChange={onChange}
+                      className="input"
+                      placeholder="Nhập số điện thoại"
+                    />
+                  )}
+                </strong>
+              </div>
+            </div>
+
+            {/* Hàng nút Lưu / Hủy (dưới cùng cột trái) */}
+            {editMode && (
+              <div
+                className="form-gr"
+                style={{
+                  display: "flex",
+                  gap: "0.5rem",
+                  justifyContent: "flex-end",
+                  marginTop: ".25rem",
+                }}
+              >
+                <button className="button-outline" type="button" onClick={onCancelEdit}>
+                  Hủy
+                </button>
+                <button className="button-primary" type="button" onClick={onSave}>
+                  Lưu
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* ========== CỘT PHẢI (thông tin chi tiết) ========== */}
+          <div className="chitiet-content" style={{ width: "100%" }}>
+            <div className="chitiet-title">
+              <h3>Thông Tin Cá Nhân</h3>
+            </div>
+            {/* Mã & Tên */}
+            <div className="form-gr under-line">
+              <div className="form-gr-content">
+                <strong>
+                  Mã nhân viên:
+                  {!editMode ? (
+                    <p>-</p>
+                  ) : (
+                    <input
+                      type="text"
+                      name="fullName"
+                      onChange={onChange}
+                      className="input"
+                      disabled
+                    />
+                  )}
+                </strong>
+              </div>
+              <div className="form-gr-content">
+                <strong>
+                  Giới tính:
+                  {editMode ? (
+                    <select className="input" value={form.gioitinh}
+                      onChange={onChange} name="gioitinh">
+                      <option value="" disabled>Chọn giới tính</option>
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                    </select>
+                  ) : (
+                    <p>{form.gioitinh}</p>
+                  )}
+                </strong>
+              </div>
+            </div>
+
+            {/* Liên hệ */}
+            <div className="form-gr under-line">
+              <div className="form-gr-content">
+                <strong>
+                  Ngày sinh:
+                  {editMode ? (
+                    <input type="date" className="input" name="ngaysinh" onChange={onChange} value={form.ngaysinh} />
+                  ) : (
+                    <p>{form.ngaysinh}</p>
+                  )}
+                </strong>
+              </div>
+              <div className="form-gr-content">
+                <strong>
+                  Địa chỉ:
+                  {editMode ? (
+                    <input className="input" name="diachi" onChange={onChange} value={form.diachi} placeholder="Nhập địa chỉ" />
+                  ) : (
+                    <p>{form.diachi}</p>
+                  )}
+                </strong>
+              </div>
+            </div>
+            <h3>Thông Tin Công Việc</h3>
+            {/* Ngày vào làm - Chức vụ - Vai trò */}
+            <div className="form-gr under-line">
+              <div className="form-gr-content">
+                <strong>
+                  Ngày vào làm:
+                  <p>-</p>
+                </strong>
+              </div>
+              <div className="form-gr-content">
+                <strong>
+                  Chức vụ:
+                  <p>-</p>
+                </strong>
+              </div>
+              <div className="form-gr-content">
+                <strong>
+                  Vai trò:
+                  <p>-</p>
+                </strong>
+              </div>
+            </div>
+
+            {/* Công ty & Phòng ban */}
+            <div className="form-gr under-line">
+              <div className="form-gr-content">
+                <strong>
+                  Công ty:
+                  <p>-</p>
+                </strong>
+              </div>
+              <div className="form-gr-content">
+                <strong>
+                  Phòng ban:
+                  <p>-</p>
+                </strong>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Mã & Tên */}
-        <div className="form-gr under-line">
+        {/* ========== DỰ ÁN ========== */}
+        <div className="chitiet-content">
+          <h3>Dự Án</h3>
           <div className="form-gr-content">
-            <strong>
-              Mã nhân viên:
-              <p>{nv.MaNV}</p>
-            </strong>
+            <strong>Danh sách dự án đang tham gia:</strong>
           </div>
-          <div className="form-gr-content">
-            <strong>
-              Tên nhân viên:
-              <p>{nv.TenNV}</p>
-            </strong>
-          </div>
-        </div>
-
-        {/* Liên hệ */}
-        <div className="form-gr under-line">
-          <div className="form-gr-content">
-            <strong>
-              Số điện thoại:
-              <p>{nv.SDT || "—"}</p>
-            </strong>
-          </div>
-          <div className="form-gr-content">
-            <strong>
-              Email:
-              <p>{nv.Email || "—"}</p>
-            </strong>
-          </div>
-        </div>
-
-        {/* Giới tính - Ngày sinh */}
-        <div className="form-gr under-line">
-          <div className="form-gr-content">
-            <strong>
-              Giới tính:
-              <p>{nv.GioiTinh || "—"}</p>
-            </strong>
-          </div>
-          <div className="form-gr-content">
-            <strong>
-              Ngày sinh:
-              <p>
-                {nv.NgaySinh
-                  ? new Date(nv.NgaySinh).toLocaleDateString("vi-VN")
-                  : "—"}
-              </p>
-            </strong>
-          </div>
-        </div>
-
-        {/* Ngày vào làm - Chức vụ - Vai trò */}
-        <div className="form-gr under-line">
-          <div className="form-gr-content">
-            <strong>
-              Ngày vào làm:
-              <p>
-                {nv.NgayVao
-                  ? new Date(nv.NgayVao).toLocaleDateString("vi-VN")
-                  : "—"}
-              </p>
-            </strong>
-          </div>
-          <div className="form-gr-content">
-            <strong>
-              Chức vụ:
-              <p>{nv.ChucVu || "—"}</p>
-            </strong>
-          </div>
-          <div className="form-gr-content">
-            <strong>
-              Vai trò:
-              <p>{nv.VaiTro || "—"}</p>
-            </strong>
+          <div className="quanly-body qlct-body" ref={tbodyRef}>
+            <div className="table-container">
+              <table className="quanly-table">
+                <thead className="quanly-thead qlct-thead">
+                  <tr>
+                    <th>STT</th>
+                    <th>Mã dự án</th>
+                    <th>Tên dự án</th>
+                    <th>Trưởng dự án</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Ngày kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
+                  <tr>
+                    <td>1</td>
+                    <td>DA01</td>
+                    <td>Dự Án 01</td>
+                    <td>Nguyễn Văn A</td>
+                    <td>1-1-2025</td>
+                    <td>1-2-2025</td>
+                    <td>Đang hoàn thành</td>
+                    <td>
+                      <button className="button-xem quanly-button-xem">
+                        <FaRegEye />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            {/* Phân trang */}
+            <div className="quanly-phantrang">
+              <button
+                className="phantrang-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <TfiBackLeft />
+              </button>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""}`}
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                className="phantrang-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <TfiBackRight />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Công ty & Phòng ban */}
-        <div className="form-gr under-line">
+        {/* ========== CÔNG VIỆC ========== */}
+        <div className="chitiet-content">
+          <h3>Công Việc</h3>
           <div className="form-gr-content">
-            <strong>
-              Công ty:
-              <p>{nv.TenCT || nv.MaCT || "—"}</p>
-            </strong>
+            <strong>Danh sách công việc đang thực hiện:</strong>
           </div>
-          <div className="form-gr-content">
-            <strong>
-              Phòng ban:
-              <p>{nv.TenPB || nv.MaPB || "—"}</p>
-            </strong>
-          </div>
-        </div>
-
-        {/* Địa chỉ */}
-        <div className="form-gr">
-          <div className="form-gr-content">
-            <strong>
-              Địa chỉ:
-              <p>{nv.DiaChi || "—"}</p>
-            </strong>
+          <div className="quanly-body qlct-body" ref={tbodyRef}>
+            <div className="table-container">
+              <table className="quanly-table">
+                <thead className="quanly-thead qlct-thead">
+                  <tr>
+                    <th>STT</th>
+                    <th>Mã công việc</th>
+                    <th>Tên công việc</th>
+                    <th>Tên dự án</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Ngày kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
+                  <tr>
+                    <td>1</td>
+                    <td>CV01</td>
+                    <td>Công việc 01</td>
+                    <td>Dự án 01</td>
+                    <td>1-1-2025</td>
+                    <td>1-3-2025</td>
+                    <td>Đang hoàn thành</td>
+                    <td>
+                      <button className="button-xem quanly-button-xem">
+                        <FaRegEye />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            {/* Phân trang */}
+            <div className="quanly-phantrang">
+              <button
+                className="phantrang-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <TfiBackLeft />
+              </button>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""}`}
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                className="phantrang-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <TfiBackRight />
+              </button>
+            </div>
           </div>
         </div>
       </div>

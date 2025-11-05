@@ -64,10 +64,17 @@ const ThemCongViec = () => {
 
   return (
     <div className="quanly-container qlct-container">
-      <div className='them-body themct-body'>
-        <h2 style={{ margin: '0 0 0.5rem' }}>
-          Tổng số lượng công việc: {sections.length}
-        </h2>
+      <div className='them-body themct-body' style={{ margin: "0.5rem" }}>
+        <div className='form-gr' style={{ alignItems: "center" }}>
+          <div className='form-gr-content' style={{ margin: 0 }}>
+            <h3 style={{ margin: '0 0 0.5rem' }}>
+              Tổng số lượng công việc: {sections.length}
+            </h3>
+          </div>
+          <div className="form-gr-content" style={{ margin: 0 }}>
+            <strong>Dự án:<p>-</p></strong>
+          </div>
+        </div>
 
         {/* Danh sách khối .them-body-next */}
         <div className='them-body-scoll' style={{ maxHeight: '670px', overflowY: 'auto' }}>
@@ -169,11 +176,12 @@ const ThemCongViec = () => {
           <div className='button-group' style={{ marginRight: 0 }}>
             <button className='button-cancel' type="button" onClick={resetAll}>Hủy</button>
             <button
-              className='button-add'
+              className='button-them'
               type="button"
               onClick={() => console.log("Dữ liệu gửi lên:", sections)}
             >
-              Thêm công việc
+              <IoAddCircle />
+              <div>Thêm</div>
             </button>
           </div>
         </div>

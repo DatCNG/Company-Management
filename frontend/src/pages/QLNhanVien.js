@@ -17,89 +17,94 @@ import SuaNhanVien from "../components/SuaNhanVien";
 
 const QLNhanVien = () => {
   const ITEMS_PER_PAGE = 5;
-  const [employees, setEmployees] = useState([]);
+  const tbodyRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
+
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null); // 'add' | 'view' | 'edit'
-  const [modalData, setModalData] = useState(null);
+  const [modalData, setModalData] = useState(null); // có thể truyền dữ liệu CT sau này
 
   const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(employees.length / ITEMS_PER_PAGE)),
-    [employees]
+    () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
+    [totalRows]
   );
 
-  // ✅ Lấy danh sách nhân viên
-  const fetchEmployees = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/employees");
-      setEmployees(res.data);
-    } catch (err) {
-      console.error("❌ Lỗi khi tải nhân viên:", err);
-      alert("Không thể tải danh sách nhân viên!");
-    }
+  const applyPagination = () => {
+    const tbody = tbodyRef.current;
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    rows.forEach((tr, idx) => {
+      tr.style.display = idx >= start && idx < end ? "" : "none";
+    });
   };
 
   useEffect(() => {
-    fetchEmployees();
+    const tbody = tbodyRef.current;
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    setTotalRows(rows.length);
   }, []);
+  useEffect(() => {
+    applyPagination();
+  }, [currentPage, totalRows]);
 
-  // ✅ Xóa nhân viên
-  const handleDelete = async (MaNV) => {
-    if (!window.confirm("Bạn có chắc muốn xóa nhân viên này không?")) return;
-    try {
-      await axios.delete(`http://localhost:5000/api/employees/${MaNV}`);
-      alert("🗑️ Đã xóa nhân viên!");
-      fetchEmployees(); // reload lại danh sách
-    } catch (err) {
-      console.error(err);
-      alert("❌ Lỗi khi xóa nhân viên!");
-    }
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // ✅ Mở modal
+  // Khóa scroll & ESC đóng modal
+  useEffect(() => {
+    if (showModal) {
+      const onKey = (e) => e.key === "Escape" && setShowModal(false);
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", onKey);
+      return () => {
+        window.removeEventListener("keydown", onKey);
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showModal]);
+
+  // Helpers mở modal theo loại
   const openAdd = () => {
     setModalType("add");
     setModalData(null);
     setShowModal(true);
   };
-  const openView = (data) => {
+  const openView = (data = null) => {
     setModalType("view");
     setModalData(data);
     setShowModal(true);
   };
-  const openEdit = (data) => {
+  const openEdit = (data = null) => {
     setModalType("edit");
     setModalData(data);
     setShowModal(true);
   };
 
-  // ✅ Khi modal đóng hoặc thêm/sửa xong thì reload
-  const closeModal = (reload = false) => {
-    setShowModal(false);
-    if (reload) fetchEmployees();
-  };
-
-  // ✅ Lọc danh sách hiển thị theo trang hiện tại
-  const currentData = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return employees.slice(start, start + ITEMS_PER_PAGE);
-  }, [employees, currentPage]);
-
-  // ✅ Modal nội dung
+  // Chọn component cho modal
   const renderModalContent = () => {
-    if (modalType === "add")
-      return <ThemNhanVien onClose={() => closeModal(true)} />;
+    if (modalType === "add") return <ThemNhanVien onClose={() => setShowModal(false)} />;
     if (modalType === "view")
-      return <XemNhanVien data={modalData} onClose={closeModal} />;
+      return (
+        // Có thể truyền props dữ liệu sau (modalData)
+        <XemNhanVien />
+      );
     if (modalType === "edit")
-      return <SuaNhanVien data={modalData} onClose={() => closeModal(true)} />;
+      return (
+        // Có thể truyền props dữ liệu sau (modalData)
+        <SuaNhanVien />
+      );
     return null;
   };
 
-  // ✅ Tiêu đề modal
+  // Tiêu đề modal theo loại
   const modalTitle =
     modalType === "add" ? (
-      <div className="quanly-title qlct-title">
+      <div className='quanly-title qlct-title'>
         <h2>
           <IoAddCircle style={{ marginRight: ".3rem" }} /> Thêm Nhân Viên
         </h2>
@@ -110,15 +115,16 @@ const QLNhanVien = () => {
           <FaEye style={{ marginRight: "0.3rem" }} />
           Chi Tiết Nhân Viên:
         </h2>
-        <h2>{modalData?.TenNV || "Không rõ"}</h2>
+        <h2>
+          {modalData?.ten || "Nguyễn Văn A"}
+        </h2>
       </div>
     ) : modalType === "edit" ? (
-      <div className="quanly-title qlct-title">
+      <div className='quanly-title qlct-title'>
+        <h2><FiEdit2 style={{ marginRight: "0.3rem" }} />Sửa Nhân Viên:</h2>
         <h2>
-          <FiEdit2 style={{ marginRight: "0.3rem" }} />
-          Sửa Nhân Viên:
+          {modalData?.ten || "Nguyễn Văn A"}
         </h2>
-        <h2>{modalData?.TenNV || "Không rõ"}</h2>
       </div>
     ) : (
       ""
@@ -136,7 +142,7 @@ const QLNhanVien = () => {
         <div className="quanly-title-sub" style={{ justifyContent: "left" }}>
           <div className="ct-tong" style={{ margin: 0, width: "30%" }}>
             <div className="quanly-title-sub-content">
-              <h3>Tổng nhân viên:<span className="tong">{employees.length}</span></h3>
+              <h3>Tổng nhân viên:<span className="tong">-</span></h3>
             </div>
           </div>
         </div>
@@ -177,76 +183,69 @@ const QLNhanVien = () => {
                   <th>Mã NV</th>
                   <th>Tên nhân viên</th>
                   <th>Email</th>
+                  <th>Công Ty</th>
+                  <th>Phòng Ban</th>
                   <th>Chức vụ</th>
                   <th>Hành động</th>
                 </tr>
               </thead>
               <tbody className="quanly-tbody qlct-tbody">
-                {currentData.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: "center" }}>
-                      Không có nhân viên nào.
-                    </td>
-                  </tr>
-                ) : (
-                  currentData.map((nv, i) => (
-                    <tr key={nv.MaNV}>
-                      <td>{(currentPage - 1) * ITEMS_PER_PAGE + i + 1}</td>
-                      <td>{nv.MaNV}</td>
-                      <td>{nv.TenNV}</td>
-                      <td>{nv.Email}</td>
-                      <td>{nv.ChucVu || "—"}</td>
-                      <td>
-                        <button
-                          className="button-xem quanly-button-xem"
-                          onClick={() => openView(nv)}
-                        >
-                          <FaRegEye />
-                        </button>
-                        <button
-                          className="button-sua quanly-button-sua"
-                          onClick={() => openEdit(nv)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="button-xoa quanly-button-xoa"
-                          onClick={() => handleDelete(nv.MaNV)}
-                        >
-                          <MdDeleteOutline />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                <tr>
+                  <td>1</td>
+                  <td>NV01</td>
+                  <td>Nguyễn Văn A</td>
+                  <td>nva@gmail.com</td>
+                  <td>Công Ty 01</td>
+                  <td>Phòng Ban 01</td>
+                  <td>Nhân viên</td>
+                  <td>
+                    <button
+                      className="button-xem quanly-button-xem"
+                      onClick={() => openView()}
+                    >
+                      <FaRegEye />
+                    </button>
+                    <button
+                      className="button-sua quanly-button-sua"
+                      onClick={() => openEdit()}
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className="button-xoa quanly-button-xoa"
+                    >
+                      <MdDeleteOutline />
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
 
           {/* Phân trang */}
-          <div className="quanly-phantrang">
+          <div className='quanly-phantrang'>
             <button
-              className="phantrang-btn"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className='phantrang-btn'
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
               <TfiBackLeft />
             </button>
 
+            {/* Nút số trang */}
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
-                className={`phantrang-btn ${currentPage === i + 1 ? "active" : ""
-                  }`}
-                onClick={() => setCurrentPage(i + 1)}
+                className={`phantrang-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => handlePageChange(i + 1)}
               >
                 {i + 1}
               </button>
             ))}
 
             <button
-              className="phantrang-btn"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className='phantrang-btn'
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
               <TfiBackRight />
