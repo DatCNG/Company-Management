@@ -19,7 +19,8 @@
     align-items: center;
     cursor: pointer;
     position: relative;
-    z-index: 1000; /* thêm để nổi lên */
+    z-index: 1000;
+    /* thêm để nổi lên */
 }
 
 .account-button {
@@ -34,7 +35,8 @@
     display: inline-block;
     font-size: 14px;
     cursor: pointer;
-    z-index: 9999 !important; /* Max để không bị che */
+    z-index: 9999 !important;
+    /* Max để không bị che */
 }
 
 /* Dropdown menu */
@@ -54,6 +56,8 @@
 }
 
 .dropdown-item {
+    display: flex;
+    justify-content: center;
     width: 100%;
     padding: 10px 15px;
     border: none;

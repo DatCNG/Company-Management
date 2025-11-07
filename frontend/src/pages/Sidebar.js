@@ -1,20 +1,20 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import {
-  FaBookmark, FaBookOpen, FaFileCircleQuestion, FaWarehouse
-} from "react-icons/fa6";
+
+import { FaFileCircleQuestion, FaWarehouse} from "react-icons/fa6";
 import { PiHouseFill } from "react-icons/pi";
-import { MdAccountCircle, MdManageAccounts } from "react-icons/md";
+import { MdAccountCircle } from "react-icons/md";
 import { GrDocumentLocked } from "react-icons/gr";
-import { LiaChalkboardTeacherSolid } from "react-icons/lia";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { TbLockPassword } from "react-icons/tb";
 import { CiLogout } from "react-icons/ci";
 import { IoIosPeople } from "react-icons/io";
+import { TbFileReport } from "react-icons/tb";
+import { FaProjectDiagram } from "react-icons/fa";
+
 import "../styles/Sidebar.css";
 import "../styles/style.css";
 
-const Sidebar = ({ show = true, toggle = () => {} }) => {
+const Sidebar = ({ show = true, toggle = () => { } }) => {
   const linkClass = ({ isActive }) => `menu-link ${isActive ? "active" : ""}`;
 
   return (
@@ -38,13 +38,13 @@ const Sidebar = ({ show = true, toggle = () => {} }) => {
         </li>
         <li>
           <NavLink to="/quanlynhanvien" className={linkClass}>
-            <IoIosPeople  className="icon" />
+            <IoIosPeople className="icon" />
             <span className="label">Nhân Viên</span>
           </NavLink>
         </li>
         <li>
           <NavLink to="/quanlyduan" className={linkClass}>
-            <MdManageAccounts className="icon" />
+            <FaProjectDiagram className="icon" />
             <span className="label">Dự Án</span>
           </NavLink>
         </li>
@@ -56,7 +56,7 @@ const Sidebar = ({ show = true, toggle = () => {} }) => {
         </li>
         <li>
           <NavLink to="/quanlybaocao" className={linkClass}>
-            <FaFileCircleQuestion className="icon" />
+            <TbFileReport className="icon" />
             <span className="label">Báo Cáo</span>
           </NavLink>
         </li>
@@ -72,18 +72,12 @@ const Sidebar = ({ show = true, toggle = () => {} }) => {
             <span className="label">Tài Khoản</span>
           </NavLink>
         </li>
-        <li>
-          <NavLink to="/doimatkhau" className={linkClass}>
-            <TbLockPassword className="icon" />
-            <span className="label">Đổi Mật Khẩu</span>
-          </NavLink>
-        </li>
-        <li>
-          <a href="#logout" className="menu-link" onClick={(e)=>e.preventDefault()}>
+        {/* <li>
+          <a href="#logout" className="menu-link" onClick={(e) => e.preventDefault()}>
             <CiLogout className="icon" />
             <span className="label">Đăng Xuất</span>
           </a>
-        </li>
+        </li> */}
       </ul>
     </aside>
   );

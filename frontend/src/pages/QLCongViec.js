@@ -14,21 +14,18 @@ import { FaEye } from "react-icons/fa";
 import { GrDocumentLocked } from "react-icons/gr";
 import { ImCancelCircle } from "react-icons/im";
 
+import XemCongViec from '../components/XemCongViec';
 import ThemCongViec from '../components/ThemCongViec';
-import SuaCongViec from "../components/SuaCongViec";
-import XemCongViec from '../components/XemCongTy';
+import SuaCongViec from '../components/SuaCongViec';
 import SuaMotCongViec from '../components/SuaMotCongViec';
 
+import Donut from './dunut';
 const QLCongViec = () => {
     const navigate = useNavigate();
     const ITEMS_PER_PAGE = 5;
     const tbodyRef = useRef(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalRows, setTotalRows] = useState(0);
-
-    const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState(null); // 'add' | 'view' | 'edit'
-    const [modalData, setModalData] = useState(null); // có thể truyền dữ liệu CT sau này
 
     const totalPages = useMemo(
         () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
@@ -60,6 +57,57 @@ const QLCongViec = () => {
         if (page >= 1 && page <= totalPages) setCurrentPage(page);
     };
 
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(""); // 'add' | 'edit' | 'view' | 'delete'
+
+    const openModal = (type) => {
+        setModalType(type);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setModalType("");
+    };
+
+    // Tiêu đề động kiểu bạn muốn
+    const modalTitle =
+        modalType === "view" ? (
+            <div className="quanly-title qlct-title">
+                <h2>
+                    <FaEye style={{ marginRight: "0.3rem" }} /> Chi Tiết Công Việc
+                </h2>
+            </div>
+        ) : modalType === "add" ? (
+            <div className='quanly-title qlct-title'>
+                <h2>
+                    <IoAddCircle style={{ marginRight: "0.3rem" }} /> Thêm Công Việc
+                </h2>
+            </div>
+        ) : modalType === "edit" ? (
+            <div className='quanly-title qlct-title'>
+                <h2>
+                    <FaEye style={{ marginRight: "0.3rem" }} /> Sửa Công Việc
+                </h2>
+            </div>
+        ) : (
+            ""
+        );
+
+    // Hàm render nội dung trong overlay
+    const renderModalContent = () => {
+        switch (modalType) {
+            case "add":
+                return <ThemCongViec onClose={closeModal} />;
+            case "view":
+                return <XemCongViec onClose={closeModal} />;
+            case "edit":
+                return <SuaCongViec onClose={closeModal} />;
+            default:
+                return null;
+        }
+    };
     // Khóa scroll & ESC đóng modal
     useEffect(() => {
         if (showModal) {
@@ -72,90 +120,6 @@ const QLCongViec = () => {
             };
         }
     }, [showModal]);
-
-    // Helpers mở modal theo loại
-    const openAdd = () => {
-        setModalType("add");
-        setModalData(null);
-        setShowModal(true);
-    };
-    const openAdd_cv = () => {
-        setModalType("add_cv");
-        setModalData(null);
-        setShowModal(true);
-    };
-    const openView = (data = null) => {
-        setModalType("view");
-        setModalData(data);
-        setShowModal(true);
-    };
-    const openEdit = (data = null) => {
-        setModalType("edit");
-        setModalData(data);
-        setShowModal(true);
-    };
-    const openEdit_cv = (data = null) => {
-        setModalType("edit-cv");
-        setModalData(data);
-        setShowModal(true);
-    };
-
-    // Chọn component cho modal
-    const renderModalContent = () => {
-        if (modalType === "add") return <ThemCongViec onClose={() => setShowModal(false)} />;
-        if (modalType === "view")
-            return (
-                // Có thể truyền props dữ liệu sau (modalData)
-                <XemCongViec />
-            );
-        if (modalType === "edit")
-            return (
-                // Có thể truyền props dữ liệu sau (modalData)
-                <SuaCongViec />
-            );
-        if (modalType === "edit-cv")
-            return (
-                // Có thể truyền props dữ liệu sau (modalData)
-                <SuaMotCongViec />
-            );
-        return null;
-    };
-
-    // Tiêu đề modal theo loại
-    const modalTitle =
-        modalType === "add" ? (
-            <div className='quanly-title qlct-title'>
-                <h2>
-                    <IoAddCircle style={{ marginRight: ".3rem" }} /> Thêm Công Việc
-                </h2>
-            </div>
-        ) : modalType === "view" ? (
-            <div className="quanly-title qlct-title">
-                <h2>
-                    <FaEye style={{ marginRight: "0.3rem" }} />
-                    Chi Tiết Công Việc:
-                </h2>
-                <h2>
-                    {modalData?.ten || "Công Việc 1"}
-                </h2>
-            </div>
-        ) : modalType === "edit" ? (
-            <div className='quanly-title qlct-title'>
-                <h2><FiEdit2 style={{ marginRight: "0.3rem" }} />Sửa Công Việc:</h2>
-                <h2>
-                    {modalData?.ten || "Công Việc 1"}
-                </h2>
-            </div>
-        ) : modalType === "edit-cv" ? (
-            <div className='quanly-title qlct-title'>
-                <h2><FiEdit2 style={{ marginRight: "0.3rem" }} />Sửa Công Việc:</h2>
-                <h2>
-                    {modalData?.ten || "Công Việc 1"}
-                </h2>
-            </div>
-        ) : (
-            ""
-        );
     return (
         <div className='quanly-content'>
             <div className="quanly-container qlct-container">
@@ -175,7 +139,7 @@ const QLCongViec = () => {
                     </div>
                     <div className="ct-tamngung">
                         <div className="quanly-title-sub-content">
-                            <h3>Đang hoàn thành:<span className="tamngung">5</span></h3>
+                            <h3>Đang thực hiện:<span className="tamngung">5</span></h3>
                         </div>
                     </div>
                 </div>
@@ -200,7 +164,7 @@ const QLCongViec = () => {
                         <h3>Danh sách công việc</h3>
                     </div>
                     <div className='quanly-them qlct-them'>
-                        <button className='button-them' onClick={openAdd}><IoAddCircle />
+                        <button className='button-them' onClick={() => openModal('add')}><IoAddCircle />
                             <div>Thêm</div>
                         </button>
                     </div>
@@ -216,6 +180,7 @@ const QLCongViec = () => {
                                     <th>Tên dự án</th>
                                     <th>Ngày bắt đầu</th>
                                     <th>Ngày kết thúc</th>
+                                    <th>Tiến độ</th>
                                     <th>Trạng thái</th>
                                     <th>Hành động</th>
                                 </tr>
@@ -228,10 +193,13 @@ const QLCongViec = () => {
                                     <td>Dự án 01</td>
                                     <td>1-1-2025</td>
                                     <td>1-3-2025</td>
+                                    <td>
+                                        <Donut value={100} size={85} />
+                                    </td>
                                     <td>Đã hoàn thành</td>
                                     <td>
-                                        <button className='button-xem quanly-button-xem' onClick={openView}><FaRegEye /></button>
-                                        <button className='button-sua quanly-button-sua' onClick={openEdit_cv}><FiEdit2 /></button>
+                                        <button className='button-xem quanly-button-xem' onClick={() => openModal('view')}><FaRegEye /></button>
+                                        <button className='button-sua quanly-button-sua' onClick={() => openModal('edit')}><FiEdit2 /></button>
                                         <button className='button-xoa quanly-button-xoa'><MdDeleteOutline /></button>
                                     </td>
                                 </tr>

@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
-import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEye, FaEye } from "react-icons/fa";
 import { FiEdit2 } from "react-icons/fi";
+import { ImCancelCircle } from "react-icons/im";
+
 import "../styles/style.css";
 
 import XemNhanVien from "./XemNhanVien";
@@ -259,7 +260,7 @@ const XemCongTy = ({ data }) => {
                 aria-label="Đóng"
                 onClick={closeModal}
               >
-                ×
+                <ImCancelCircle style={{ color: "red" }} />
               </button>
             </div>
             <div className="overlay-body">{renderModalContent()}</div>

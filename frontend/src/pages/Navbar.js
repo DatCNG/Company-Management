@@ -3,11 +3,16 @@ import { createPortal } from "react-dom";
 
 import { IoAddCircle } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
+import { RiAccountCircleFill } from "react-icons/ri";
+import { FaEye } from "react-icons/fa";
+import { RiLockPasswordFill } from "react-icons/ri";
+import { CiLogout } from "react-icons/ci";
 
 import '../styles/style.css';
 import '../styles/Navbar.css';
 
 import DoiMK from './DoiMK'
+import XemTTCN from '../components/XemTTCN';
 
 const Navbar = () => {
   // Modal state
@@ -35,9 +40,16 @@ const Navbar = () => {
     setShowModal(true);
   };
 
+  const openProfile = () => {
+    setModalType("profile");
+    setModalData(null);
+    setShowModal(true);
+  };
+
   // Chọn component cho modal
   const renderModalContent = () => {
     if (modalType === "change") return <DoiMK onClose={() => setShowModal(false)} />;
+    if (modalType === "profile") return <XemTTCN onClose={() => setShowModal(false)} />;
     return null;
   };
 
@@ -47,6 +59,12 @@ const Navbar = () => {
       <div className='quanly-title qlct-title'>
         <h2>
           <IoAddCircle style={{ marginRight: ".3rem" }} /> Đổi Mật Khẩu
+        </h2>
+      </div>
+    ) : modalType === "profile" ? (
+      <div className='quanly-title qlct-title'>
+        <h2>
+          <FaEye style={{ marginRight: ".3rem" }} />Thông Tin Cá Nhân
         </h2>
       </div>
     ) : (
@@ -77,8 +95,24 @@ const Navbar = () => {
 
         {open && (
           <div className="dropdown-menu">
-            <button className="dropdown-item">Xem thông tin</button>
-            <button className="dropdown-item" onClick={openChange}>Đổi mật khẩu</button>
+            <button className="dropdown-item" onClick={openProfile}>
+              <RiAccountCircleFill style={{marginRight: '0.3rem'}}/>
+              <div>
+                Xem thông tin
+              </div>
+            </button>
+            <button className="dropdown-item" onClick={openChange}>
+              <RiLockPasswordFill style={{marginRight: '0.3rem'}}/>
+              <div>
+                Đổi mật khẩu
+              </div>
+            </button>
+            <button className="dropdown-item">
+              <CiLogout style={{marginRight: '0.3rem'}}/>
+              <div>
+                Đăng xuất
+              </div>
+            </button>
           </div>
         )}
       </div>

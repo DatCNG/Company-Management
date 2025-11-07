@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import "../styles/style.css";
+
 import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
 import { ImCancelCircle } from "react-icons/im";
 import { FaRegEye, FaProjectDiagram, FaEye } from "react-icons/fa";
@@ -9,9 +9,12 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FiEdit2 } from "react-icons/fi";
 import { IoAddCircle } from "react-icons/io5";
 
+import "../styles/style.css";
+
 import ThemDuAn from "../components/ThemDuAn";
 import SuaDuAn from "../components/SuaDuAn";
 import XemDuAn from "../components/XemDuAn";
+import Donut from "./dunut";
 
 const QLDuAn = () => {
   const navigate = useNavigate();
@@ -46,6 +49,13 @@ const QLDuAn = () => {
     applyPagination();
   }, [currentPage]);
 
+  useEffect(() => {
+    const tbody = tbodyRef.current;
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    setTotalRows(rows.length);
+  }, []);
+
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
@@ -69,33 +79,28 @@ const QLDuAn = () => {
     setModalData(null);
     setShowModal(true);
   };
-  const openEdit = (duan) => {
+  const openEdit = (duan = null) => {
     setModalType("edit");
     setModalData(duan);
     setShowModal(true);
   };
-  const openView = (duan) => {
+  const openView = (duan = null) => {
     setModalType("view");
     setModalData(duan);
     setShowModal(true);
   };
 
-
   // ======= Render modal nội dung =======
   const renderModalContent = () => {
     if (modalType === "add")
-      return (
-        <ThemDuAn onClose={() => setShowModal(false)} />
-      );
+      return <ThemDuAn onClose={() => setShowModal(false)} />;
+
     if (modalType === "edit")
-      return (
-        <SuaDuAn
-          data={modalData}
-          onClose={() => setShowModal(false)}
-        />
-      );
+      return <SuaDuAn data={modalData} onClose={() => setShowModal(false)} />;
+
     if (modalType === "view")
       return <XemDuAn data={modalData} onClose={() => setShowModal(false)} />;
+
     return null;
   };
 
@@ -135,7 +140,7 @@ const QLDuAn = () => {
         <div className="quanly-title-sub">
           <div className="ct-tong">
             <div className="quanly-title-sub-content">
-              <h3>Tổng dự án:<span className="tong">-</span></h3>
+              <h3>Tổng dự án:<span className="tong">10</span></h3>
             </div>
           </div>
           <div className="ct-hoatdong">
@@ -150,18 +155,22 @@ const QLDuAn = () => {
           </div>
         </div>
         {/* ======= Thanh tìm kiếm & lọc ======= */}
-        <div className='timvaloc timvaloc-border'>
-          <div className='tim'>
-            <input type="text" className='tim-input' placeholder='Tìm theo mã, tên dự án, trưởng dự án,...' />
+        <div className="timvaloc timvaloc-border">
+          <div className="tim">
+            <input
+              type="text"
+              className="tim-input"
+              placeholder="Tìm theo mã, tên dự án, trưởng dự án,..."
+            />
           </div>
-          <div className='loc'>
-            <select className='loc-select' >
+          <div className="loc">
+            <select className="loc-select">
               <option value="">--Lọc theo dự án--</option>
             </select>
-            <select className='loc-select' >
+            <select className="loc-select">
               <option value="">--Lọc theo trưởng dự án--</option>
             </select>
-            <select className='loc-select' >
+            <select className="loc-select">
               <option value="">--Lọc theo trạng thái--</option>
             </select>
           </div>
@@ -170,9 +179,7 @@ const QLDuAn = () => {
         {/* ======= Header: tổng số + thêm ======= */}
         <div className="quanly-header qlct-header">
           <div className="quanly-header-title qlct-header-title">
-            <h3>
-              Danh sách dự án
-            </h3>
+            <h3>Danh sách dự án</h3>
           </div>
           <div className="quanly-them qlct-them">
             <button className="button-them" onClick={openAdd}>
@@ -194,11 +201,17 @@ const QLDuAn = () => {
                   <th>Trưởng dự án</th>
                   <th>Ngày bắt đầu</th>
                   <th>Ngày kết thúc</th>
+
+                  {/* ✅ Thêm cột tiến độ */}
+                  <th>Tiến độ</th>
+
                   <th>Trạng thái</th>
                   <th>Hành động</th>
                 </tr>
               </thead>
+
               <tbody className="quanly-tbody qlct-tbody" ref={tbodyRef}>
+                {/* ====== Dòng mẫu ====== */}
                 <tr>
                   <td>1</td>
                   <td>DA01</td>
@@ -206,23 +219,39 @@ const QLDuAn = () => {
                   <td>Nguyễn Văn A</td>
                   <td>1-1-2025</td>
                   <td>1-2-2025</td>
+
+                  {/* ✅ Donut mức tiến độ */}
+                  <td>
+                    <Donut value={100} size={85} />
+                  </td>
+
                   <td>Đã hoàn thành</td>
                   <td>
                     <button
                       className="button-xem quanly-button-xem"
-                      onClick={() => openView()}
+                      onClick={() =>
+                        openView({
+                          MaDA: "DA01",
+                          TenDA: "Dự Án 01",
+                        })
+                      }
                     >
                       <FaRegEye />
                     </button>
+
                     <button
                       className="button-sua quanly-button-sua"
-                      onClick={() => openEdit()}
+                      onClick={() =>
+                        openEdit({
+                          MaDA: "DA01",
+                          TenDA: "Dự Án 01",
+                        })
+                      }
                     >
                       <FiEdit2 />
                     </button>
-                    <button
-                      className="button-xoa quanly-button-xoa"
-                    >
+
+                    <button className="button-xoa quanly-button-xoa">
                       <MdDeleteOutline />
                     </button>
                   </td>
@@ -269,7 +298,8 @@ const QLDuAn = () => {
                 role="dialog"
                 aria-modal="true"
                 onClick={(e) => {
-                  if (e.target.classList.contains("ql-overlay")) setShowModal(false);
+                  if (e.target.classList.contains("ql-overlay"))
+                    setShowModal(false);
                 }}
               >
                 <div className="overlay-content">
@@ -287,12 +317,12 @@ const QLDuAn = () => {
                       <ImCancelCircle style={{ color: "red" }} />
                     </button>
                   </div>
+
                   <div className="overlay-body">{renderModalContent()}</div>
                 </div>
               </div>,
               document.body
-            )
-          }
+            )}
         </div>
       </div>
     </div>

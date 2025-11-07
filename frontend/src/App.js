@@ -12,6 +12,7 @@ import QLNhanVien from './pages/QLNhanVien';
 import QLTaiKhoan from './pages/QLTaiKhoan';
 import QLDuAn from "./pages/QLDuAn";
 import QLCongViec from "./pages/QLCongViec";
+import QLBaoCao from "./pages/QLBaoCao";
 
 //Components
 import ThemCongTy from './components/ThemCongTy';
@@ -72,7 +73,7 @@ function App() {
           <Route path="/suacongviec" element={<SuaCongViec />} />
           <Route path="/suamotcongviec" element={<SuaMotCongViec />} />
           {/* Báo Cáo */}
-
+          <Route path="/quanlybaocao" element={<QLBaoCao />} />
           {/* Lương */}
 
           {/* Tài Khoản */}

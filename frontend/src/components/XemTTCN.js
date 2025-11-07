@@ -2,14 +2,14 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { TfiBackLeft, TfiBackRight } from "react-icons/tfi";
 import { FaRegEye, FaEye } from "react-icons/fa";
-import { ImCancelCircle } from "react-icons/im";
+import { FaEdit } from "react-icons/fa";
 
 import "../styles/style.css";
 
 import XemDuAn from "./XemDuAn";
 import XemCongViec from "./XemCongViec";
 
-const XemNhanVien = () => {
+const XemTTCN = () => {
   // Phân trang
   const ITEMS_PER_PAGE = 5;
   const tbodyRef = useRef(null);
@@ -17,6 +17,28 @@ const XemNhanVien = () => {
   // ========== STATE ==========
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
+
+  // Edit mode cho cột trái
+  const [editMode, setEditMode] = useState(false);
+
+  // Form state chỉ dùng cho cột trái
+  const [form, setForm] = useState({
+    fullName: "Cao Nguyễn Gia Đạt",
+    email: "cngdat@gmail.com",
+    phone: "0949566519",
+    gioitinh: "",
+    ngaysinh: "",
+    diachi: "",
+    // có thể mở rộng thêm trường khác nếu bạn muốn hiển thị ở cột trái
+  });
+
+  // Lưu tạm để cho phép Hủy
+  const [backupForm, setBackupForm] = useState(form);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
+    [totalRows]
+  );
 
   const applyPagination = () => {
     const tbody = tbodyRef.current;
@@ -29,17 +51,33 @@ const XemNhanVien = () => {
     });
   };
 
-  const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(totalRows / ITEMS_PER_PAGE)),
-    [totalRows]
-  );
-
   useEffect(() => {
     applyPagination();
   }, [currentPage, totalRows]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  // ====== Handlers cho edit mode cột trái ======
+  const onStartEdit = () => {
+    setBackupForm(form); // lưu lại để có thể hủy
+    setEditMode(true);
+  };
+
+  const onCancelEdit = () => {
+    setForm(backupForm); // khôi phục
+    setEditMode(false);
+  };
+
+  const onSave = () => {
+    // Frontend only: tạm thời coi như đã lưu
+    setEditMode(false);
+  };
+
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const [showModal, setShowModal] = useState(false);
@@ -85,15 +123,21 @@ const XemNhanVien = () => {
       ""
     );
 
-
-  // Modal state
-
   return (
     <div className="quanly-container qlct-container">
       <div className="chitiet chitiet-pb">
         <div className="chitiet-one">
           {/* ========== CỘT TRÁI ========== */}
           <div className="chitiet-content col-4">
+            {/* Nút edit ở góc trên */}
+            {!editMode && (
+              <div className="edit-pf">
+                <button title="Sửa thông tin" onClick={onStartEdit}>
+                  <FaEdit />
+                </button>
+              </div>
+            )}
+
             <div className="form-gr" style={{ justifyContent: "center" }}>
               <div className="avatar" style={{ textAlign: "center" }}>
                 <img
@@ -112,31 +156,115 @@ const XemNhanVien = () => {
                 {/* Nếu đang sửa thì hiện nút Thay Avatar */}
               </div>
             </div>
+            {editMode && (
+              <div style={{
+                marginTop: ".75rem",
+                display: "flex",
+                justifyContent: "center"
+              }}>
+                <button
+                  type="button"
+                  className="button-avt"
+                  onClick={() => alert("Chỉ minh họa front-end: mở file chooser")}
+                >
+                  Đổi ảnh đại diện
+                </button>
+              </div>
+            )}
+
             {/* Họ và tên */}
             <div className="form-gr under-line" style={{ marginTop: '1.5rem' }}>
               <div className="form-gr-content">
-                <strong>Họ và tên:
-                  <p>-</p>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>Họ và tên:
+                  {!editMode ? (
+                    <p>{form.fullName}</p>
+                  ) : (
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={form.fullName}
+                      onChange={onChange}
+                      className="input"
+                      placeholder="Nhập họ và tên"
+                    />
+                  )}
                 </strong>
               </div>
             </div>
+
             {/* Email */}
             <div className="form-gr under-line">
               <div className="form-gr-content">
-                <strong>Email:
-                  <p>-</p>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>Email:
+                  {!editMode ? (
+                    <p>{form.email}</p>
+                  ) : (
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={onChange}
+                      className="input"
+                      placeholder="Nhập email"
+                    />
+                  )}
                 </strong>
               </div>
             </div>
+
             {/* SĐT */}
             <div className="form-gr under-line">
               <div className="form-gr-content">
-                <strong>SĐT:
-                  <p>-</p>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>SĐT:
+                  {!editMode ? (
+                    <p>{form.phone}</p>
+                  ) : (
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={form.phone}
+                      onChange={onChange}
+                      className="input"
+                      placeholder="Nhập số điện thoại"
+                    />
+                  )}
                 </strong>
               </div>
             </div>
+
+            {/* Hàng nút Lưu / Hủy (dưới cùng cột trái) */}
+            {editMode && (
+              <div
+                className="form-gr"
+                style={{
+                  display: "flex",
+                  gap: "0.5rem",
+                  justifyContent: "flex-end",
+                  marginTop: ".25rem",
+                }}
+              >
+                <button className="button-outline" type="button" onClick={onCancelEdit}>
+                  Hủy
+                </button>
+                <button className="button-primary" type="button" onClick={onSave}>
+                  Lưu
+                </button>
+              </div>
+            )}
           </div>
+
           {/* ========== CỘT PHẢI (thông tin chi tiết) ========== */}
           <div className="chitiet-content" style={{ width: "100%" }}>
             <div className="chitiet-title">
@@ -145,29 +273,74 @@ const XemNhanVien = () => {
             {/* Mã & Tên */}
             <div className="form-gr under-line">
               <div className="form-gr-content">
-                <strong>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>
                   Mã nhân viên:
-                  <p>-</p>
+                  {!editMode ? (
+                    <p>-</p>
+                  ) : (
+                    <input
+                      type="text"
+                      name="fullName"
+                      onChange={onChange}
+                      className="input"
+                      disabled
+                    />
+                  )}
                 </strong>
               </div>
               <div className="form-gr-content">
-                <strong>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>
                   Giới tính:
-                  <p>-</p>
+                  {editMode ? (
+                    <select className="input" value={form.gioitinh}
+                      onChange={onChange} name="gioitinh">
+                      <option value="" disabled>Chọn giới tính</option>
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                    </select>
+                  ) : (
+                    <p>{form.gioitinh}</p>
+                  )}
                 </strong>
               </div>
             </div>
+
             {/* Liên hệ */}
             <div className="form-gr under-line">
               <div className="form-gr-content">
-                <strong>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>
                   Ngày sinh:
-                  <p>-</p>
+                  {editMode ? (
+                    <input type="date" className="input" name="ngaysinh" onChange={onChange} value={form.ngaysinh} />
+                  ) : (
+                    <p>{form.ngaysinh}</p>
+                  )}
                 </strong>
               </div>
               <div className="form-gr-content">
-                <strong>
-                  <p>-</p>
+                <strong style={{
+                  whiteSpace: 'nowrap',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>
+                  Địa chỉ:
+                  {editMode ? (
+                    <input className="input" name="diachi" onChange={onChange} value={form.diachi} placeholder="Nhập địa chỉ" />
+                  ) : (
+                    <p>{form.diachi}</p>
+                  )}
                 </strong>
               </div>
             </div>
@@ -348,36 +521,8 @@ const XemNhanVien = () => {
           </div>
         </div>
       </div>
-      {showModal && (
-        <div
-          className="ql-overlay"
-          role="dialog"
-          aria-modal="true"
-          onClick={(e) => {
-            if (e.target.classList.contains("ql-overlay")) closeModal();
-          }}
-        >
-          <div className="overlay-content">
-            <div className="overlay-header">
-              <h3 className="quanly-title qlct-title">
-                <span style={{ display: "flex", alignItems: "center" }}>
-                  {modalTitle}
-                </span>
-              </h3>
-              <button
-                className="overlay-close"
-                aria-label="Đóng"
-                onClick={closeModal}
-              >
-                <ImCancelCircle style={{ color: "red" }} />
-              </button>
-            </div>
-            <div className="overlay-body">{renderModalContent()}</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default XemNhanVien;
+export default XemTTCN;

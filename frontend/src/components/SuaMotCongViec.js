@@ -1,11 +1,131 @@
-import React, { useState } from 'react';
-import "../styles/style.css";
+import React, { useState, useMemo } from 'react';
+
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 import { FiEdit2 } from "react-icons/fi";
+import { MdManageAccounts } from "react-icons/md";
+
+import "../styles/style.css";
+
+const PhanCongNV = ({ onClose = () => { }, onPick = () => { } }) => {
+    // Dữ liệu mẫu – sau này thay bằng API/list thật của bạn
+    const [q, setQ] = useState("");
+    const [selected, setSelected] = useState(null);
+    const [list] = useState([
+        { id: 'NV01', ten: 'Nguyễn Văn A', sdt: '0901234567' },
+        { id: 'NV02', ten: 'Trần Thị B', sdt: '0902222333' },
+        { id: 'NV03', ten: 'Lê Văn C', sdt: '0903333444' },
+        { id: 'NV04', ten: 'Phạm Thị D', sdt: '0904444555' },
+        { id: 'NV05', ten: 'Đỗ Quốc E', sdt: '0905555666' },
+        { id: 'NV06', ten: 'Đỗ Quốc E', sdt: '0905555666' },
+        { id: 'NV07', ten: 'Đỗ Quốc E', sdt: '0905555666' },
+        { id: 'NV08', ten: 'Đỗ Quốc E', sdt: '0905555666' },
+    ]);
+
+    const filtered = useMemo(() => {
+        if (!q.trim()) return list;
+        const k = q.toLowerCase();
+        return list.filter(
+            (nv) =>
+                nv.id.toLowerCase().includes(k) ||
+                nv.ten.toLowerCase().includes(k) ||
+                nv.sdt.includes(k)
+        );
+    }, [q, list]);
+
+    return (
+        <div className="chon-tp">
+            <div className='form-gr'>
+                <div className='form-gr-content'>
+                    <input
+                        value={q}
+                        onChange={(e) => setQ(e.target.value)}
+                        className="chon-tp-search"
+                        placeholder="Tìm theo mã, tên, SĐT…"
+                    />
+                </div>
+            </div>
+            <div className="chon-tp-list">
+                {filtered.length === 0 ? (
+                    <div className="chon-tp-empty">Không có nhân viên phù hợp.</div>
+                ) : (
+                    filtered.map((nv) => (
+                        <label key={nv.id} className="chon-tp-item">
+                            <input
+                                type="radio"
+                                name="nvpb"
+                                value={nv.id}
+                                checked={selected?.id === nv.id}
+                                onChange={() => setSelected(nv)}
+                            />
+                            <div className="chon-tp-meta">
+                                <div className="chon-tp-line">
+                                    <span className="chon-tp-name">{nv.ten}</span>
+                                    <span className="chon-tp-id">{nv.id}</span>
+                                </div>
+                                <div className="chon-tp-sub">
+                                    <span>{nv.sdt}</span>
+                                </div>
+                            </div>
+                        </label>
+                    ))
+                )}
+            </div>
+
+            <div className="chon-tp-actions">
+                <button className="button-cancel" onClick={onClose}>Hủy</button>
+                <button
+                    className="btn-primary"
+                    disabled={!selected}
+                    onClick={() => {
+                        onPick(selected);   // trả kết quả về cha
+                        onClose();
+                    }}
+                >
+                    Phân công
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const SuaMotCongViec = () => {
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(""); // 'add' | 'edit' | 'view' | 'delete'
+
+    const openModal = (type) => {
+        setModalType(type);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setModalType("");
+    };
+    // Tiêu đề động kiểu bạn muốn
+    const modalTitle =
+        modalType === "phancong" ? (
+            <div className="quanly-title qlct-title">
+                <h2>
+                    <MdManageAccounts style={{ marginRight: "0.3rem" }} /> Phân công nhân viên
+                </h2>
+            </div>
+        ) : (
+            ""
+        );
+
+    // Hàm render nội dung trong overlay
+    const renderModalContent = () => {
+        switch (modalType) {
+            case "phancong":
+                return <PhanCongNV onClose={closeModal} />;
+            default:
+                return null;
+        }
+    };
+
     const [moTa, setMoTa] = useState("<p>Mô tả công việc...</p>");
     return (
         <div className="quanly-container qlct-container">
@@ -39,11 +159,12 @@ const SuaMotCongViec = () => {
                                 </div>
 
                                 <div className='form-gr-content' style={{ flexDirection: 'column' }}>
-                                    <label className='label'>Phân công nhân viên:</label>
+                                    <label className='label'>Nhân viên phụ trách:</label>
                                     <div className='button-group' style={{ margin: 0, justifyContent: 'left' }}>
                                         <button
                                             className='button-add button-add-pc'
                                             type="button"
+                                            onClick={() => openModal('phancong')}
                                         >
                                             Chọn nhân viên
                                         </button>
@@ -102,6 +223,34 @@ const SuaMotCongViec = () => {
                     </div>
                 </div>
             </div>
+            {showModal && (
+                <div
+                    className="ql-overlay"
+                    role="dialog"
+                    aria-modal="true"
+                    onClick={(e) => {
+                        if (e.target.classList.contains("ql-overlay")) closeModal();
+                    }}
+                >
+                    <div className="overlay-content">
+                        <div className="overlay-header">
+                            <h3 className="quanly-title qlct-title">
+                                <span style={{ display: "flex", alignItems: "center" }}>
+                                    {modalTitle}
+                                </span>
+                            </h3>
+                            <button
+                                className="overlay-close"
+                                aria-label="Đóng"
+                                onClick={closeModal}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="overlay-body">{renderModalContent()}</div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

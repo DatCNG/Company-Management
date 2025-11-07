@@ -5,12 +5,13 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEye, FaEye } from "react-icons/fa";
 import { FaPeopleArrows } from "react-icons/fa";
 import { IoAddCircle } from "react-icons/io5";
+import { ImCancelCircle } from "react-icons/im";
 
 import "../styles/style.css";
 
 import XemNhanVien from "./XemNhanVien";
 
-const ChonTruongPhong = ({ openView = () => { }, onClose = () => { }, onPick = () => { }, modalType = () => { } }) => {
+const ChonTruongPhong = ({ onClose = () => { }, onPick = () => { } }) => {
   // Dữ liệu mẫu – sau này thay bằng API/list thật của bạn
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState(null);
@@ -477,7 +478,7 @@ const XemPhongBan = ({ data, onClose }) => {
                 aria-label="Đóng"
                 onClick={closeModal}
               >
-                ×
+                <ImCancelCircle style={{ color: "red" }} />
               </button>
             </div>
             <div className="overlay-body">{renderModalContent()}</div>
